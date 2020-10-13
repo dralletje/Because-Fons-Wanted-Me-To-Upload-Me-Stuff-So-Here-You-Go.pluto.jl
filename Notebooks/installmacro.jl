@@ -1,8 +1,11 @@
 ### A Pluto.jl notebook ###
-# v0.11.14
+# v0.12.2
 
 using Markdown
 using InteractiveUtils
+
+# ╔═╡ fa2cef8a-0a21-11eb-3d75-1905af8c0278
+@which using .Module
 
 # ╔═╡ a3a22c9a-0788-11eb-05ab-532ae1f6390e
 import PlutoUI
@@ -65,7 +68,7 @@ function Base.show(io::IO, mime::MIME"text/html", package_ui::PackageUI)
 		</style>
 		
 		<code id="container">
-			<span>$(using_string)</span>
+			<code class="language-julia">$(using_string)</code>
 			<div style="width: 15px"></div>
 		
 			<button
@@ -445,23 +448,19 @@ end
 	x
 end
 
-# ╔═╡ e8e71f74-0775-11eb-0eda-775ca1ec6c62
-macro dump(args...)
-	sprint(dump, length(args) == 1 ? args[1] : args) |> Text
-end
-
 # ╔═╡ Cell order:
 # ╠═a3a22c9a-0788-11eb-05ab-532ae1f6390e
 # ╠═887a8b3a-0833-11eb-059b-e9446a947997
 # ╟─df33c54a-0770-11eb-2ba5-2f90a2555cfe
-# ╠═3925ed9c-078c-11eb-0933-ffa8499bc055
+# ╟─3925ed9c-078c-11eb-0933-ffa8499bc055
 # ╟─e3a60806-07e1-11eb-0799-f1657f6c927a
+# ╠═fa2cef8a-0a21-11eb-3d75-1905af8c0278
 # ╟─8bc09a20-083b-11eb-21c4-a13f9568f036
 # ╟─1be30ee8-0829-11eb-3736-e188f9acf86b
 # ╟─83d2449e-082c-11eb-2135-933a85f6f24c
 # ╟─ce86b1c8-083b-11eb-2870-f394b552a680
 # ╟─e9f6c2ba-0839-11eb-0598-8339ea59aee7
-# ╟─62f6850c-0839-11eb-0b36-0b97f2ee7222
+# ╠═62f6850c-0839-11eb-0b36-0b97f2ee7222
 # ╟─14bb901a-083b-11eb-097f-cd08388fa6a7
 # ╟─2745ac02-083b-11eb-301d-fdf4d4949b6f
 # ╟─891bc5f8-083e-11eb-00b1-9346f059de59
@@ -487,4 +486,3 @@ end
 # ╟─cf1d1e28-080a-11eb-1cc7-fd19c79a2520
 # ╟─78f6d762-083e-11eb-0017-3749142cbbbf
 # ╟─daacc1b6-0775-11eb-07c8-63634bbce0c4
-# ╟─e8e71f74-0775-11eb-0eda-775ca1ec6c62
