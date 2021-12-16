@@ -1,0 +1,14 @@
+{
+    "name": "pluto",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "start": "cd Notebooks && julia --optimize=0 --project=\".\" -e 'import Pkg; Pkg.develop(path=\"../Pluto.jl/\"); import Pluto; Pluto.run();'",
+        "bump-binder": "./bump-binder.sh",
+        "open-binder": "open https://mybinder.org/v2/gh/dralletje/pluto-on-binder/$(cd ./pluto-on-binder && git rev-parse --abbrev-ref HEAD)?urlpath=pluto/open?url=https%3A%2F%2Fgist.githubusercontent.com%2Ffonsp%2Fd88b3adc8c958dce780cf7c4df8fa437%2Fraw%2F2a8a5bdc6d8b1bcb4462006f62ead2f52fec17bf%2Fturtles.jl",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "author": "",
+    "license": "ISC"
+}

@@ -1,0 +1,91 @@
+¥bonds€¬cell_results…Ù$9d82f569-af0d-44ef-bb92-d2280856b20aˆ¦queuedÂ§runningÂ¦output†¤body‚£msg¼UndefVarError: x not definedªstacktrace‘…¤call¯top-level scope§inlinedÂ¤fileÙ5PythonHTML.jl#==#9d82f569-af0d-44ef-bb92-d2280856b20a¤line¤pathÙÕ/home/runner/work/Because-Fons-Wanted-Me-To-Upload-Me-Stuff-So-Here-You-Go.pluto.jl/Because-Fons-Wanted-Me-To-Upload-Me-Stuff-So-Here-You-Go.pluto.jl/Notebooks/PythonHTML.jl#==#9d82f569-af0d-44ef-bb92-d2280856b20a°persist_js_stateÂ¤mimeÙ'application/vnd.pluto.stacktrace+object²last_run_timestampËAØnÖ"Ïİ]·has_pluto_hook_featuresÂ¬rootassigneeÀ§cell_idÙ$9d82f569-af0d-44ef-bb92-d2280856b20a¹depends_on_disabled_cellsÂ§runtimeÀµpublished_object_keys§erroredÃÙ$38fc7615-49e3-461d-a5eb-aed847626016ˆ¦queuedÂ§runningÂ¦output†¤body‚£msgÚjPyError (PyImport_ImportModule
+
+The Python package vega_datasets could not be imported by pyimport. Usually this means
+that you did not install vega_datasets in the Python version being used by PyCall.
+
+PyCall is currently configured to use the Python version at:
+
+/usr/bin/python3
+
+and you should use whatever mechanism you usually use (apt-get, pip, conda,
+etcetera) to install the Python package containing the vega_datasets module.
+
+One alternative is to re-configure PyCall to use a different Python
+version on your system: set ENV["PYTHON"] to the path/name of the python
+executable you want to use, run Pkg.build("PyCall"), and re-launch Julia.
+
+Another alternative is to configure PyCall to use a Julia-specific Python
+distribution via the Conda.jl package (which installs a private Anaconda
+Python distribution), which has the advantage that packages can be installed
+and kept up-to-date via Julia.  As explained in the PyCall documentation,
+set ENV["PYTHON"]="", run Pkg.build("PyCall"), and re-launch Julia. Then,
+To install the vega_datasets module, you can use `pyimport_conda("vega_datasets", PKG)`,
+where PKG is the Anaconda package that contains the module vega_datasets,
+or alternatively you can use the Conda package directly (via
+`using Conda` followed by `Conda.add` etcetera).
+
+) <class 'ModuleNotFoundError'>
+ModuleNotFoundError("No module named 'vega_datasets'")
+ªstacktrace“…¤call²pyimport(::String)§inlinedÂ¤file©PyCall.jl¤lineÍ&¤pathÙ7/home/runner/.julia/packages/PyCall/3fwVL/src/PyCall.jl…¤callÙ,pyimport_conda(::String, ::String, ::String)§inlinedÂ¤file©PyCall.jl¤lineÍÄ¤pathÙ7/home/runner/.julia/packages/PyCall/3fwVL/src/PyCall.jl…¤call¯top-level scope§inlinedÃ¤fileÙ5PythonHTML.jl#==#38fc7615-49e3-461d-a5eb-aed847626016¤line¤pathÙÕ/home/runner/work/Because-Fons-Wanted-Me-To-Upload-Me-Stuff-So-Here-You-Go.pluto.jl/Because-Fons-Wanted-Me-To-Upload-Me-Stuff-So-Here-You-Go.pluto.jl/Notebooks/PythonHTML.jl#==#38fc7615-49e3-461d-a5eb-aed847626016°persist_js_stateÂ¤mimeÙ'application/vnd.pluto.stacktrace+object²last_run_timestampËAØnÖ"µ®2·has_pluto_hook_featuresÂ¬rootassigneeÀ§cell_idÙ$38fc7615-49e3-461d-a5eb-aed847626016¹depends_on_disabled_cellsÂ§runtimeÀµpublished_object_keys§erroredÃÙ$e747d066-f47f-4c71-b80d-7fb5b860c4a5ˆ¦queuedÂ§runningÂ¦output†¤body‚£msgÚ9PyError (PyImport_ImportModule
+
+The Python package altair could not be imported by pyimport. Usually this means
+that you did not install altair in the Python version being used by PyCall.
+
+PyCall is currently configured to use the Python version at:
+
+/usr/bin/python3
+
+and you should use whatever mechanism you usually use (apt-get, pip, conda,
+etcetera) to install the Python package containing the altair module.
+
+One alternative is to re-configure PyCall to use a different Python
+version on your system: set ENV["PYTHON"] to the path/name of the python
+executable you want to use, run Pkg.build("PyCall"), and re-launch Julia.
+
+Another alternative is to configure PyCall to use a Julia-specific Python
+distribution via the Conda.jl package (which installs a private Anaconda
+Python distribution), which has the advantage that packages can be installed
+and kept up-to-date via Julia.  As explained in the PyCall documentation,
+set ENV["PYTHON"]="", run Pkg.build("PyCall"), and re-launch Julia. Then,
+To install the altair module, you can use `pyimport_conda("altair", PKG)`,
+where PKG is the Anaconda package that contains the module altair,
+or alternatively you can use the Conda package directly (via
+`using Conda` followed by `Conda.add` etcetera).
+
+) <class 'ModuleNotFoundError'>
+ModuleNotFoundError("No module named 'altair'")
+ªstacktrace“…¤call²pyimport(::String)§inlinedÂ¤file©PyCall.jl¤lineÍ&¤pathÙ7/home/runner/.julia/packages/PyCall/3fwVL/src/PyCall.jl…¤callÙ,pyimport_conda(::String, ::String, ::String)§inlinedÂ¤file©PyCall.jl¤lineÍÄ¤pathÙ7/home/runner/.julia/packages/PyCall/3fwVL/src/PyCall.jl…¤call¯top-level scope§inlinedÃ¤fileÙ5PythonHTML.jl#==#e747d066-f47f-4c71-b80d-7fb5b860c4a5¤line¤pathÙÕ/home/runner/work/Because-Fons-Wanted-Me-To-Upload-Me-Stuff-So-Here-You-Go.pluto.jl/Because-Fons-Wanted-Me-To-Upload-Me-Stuff-So-Here-You-Go.pluto.jl/Notebooks/PythonHTML.jl#==#e747d066-f47f-4c71-b80d-7fb5b860c4a5°persist_js_stateÂ¤mimeÙ'application/vnd.pluto.stacktrace+object²last_run_timestampËAØnÖ"´·has_pluto_hook_featuresÂ¬rootassigneeÀ§cell_idÙ$e747d066-f47f-4c71-b80d-7fb5b860c4a5¹depends_on_disabled_cellsÂ§runtimeÀµpublished_object_keys§erroredÃÙ$1a3ae116-5944-4ad1-81dd-fd9cfd71bc36ˆ¦queuedÂ§runningÂ¦output†¤body‚£msgÚ‡PyError ($(Expr(:escape, :(ccall(#= /home/runner/.julia/packages/PyCall/3fwVL/src/pyeval.jl:38 =# @pysym(:PyEval_EvalCode), PyPtr, (PyPtr, PyPtr, PyPtr), o, globals, locals))))) <class 'ModuleNotFoundError'>
+ModuleNotFoundError("No module named 'altair'")
+  File "/home/runner/.julia/packages/PyCall/3fwVL/src/pyeval.jl", line 1, in <module>
+    const Py_single_input = 256  # from Python.h
+ªstacktrace™…¤call«pyerr_check§inlinedÃ¤file¬exception.jl¤line>¤pathÙ:/home/runner/.julia/packages/PyCall/3fwVL/src/exception.jl…¤call«pyerr_check§inlinedÃ¤file¬exception.jl¤lineB¤pathÙ:/home/runner/.julia/packages/PyCall/3fwVL/src/exception.jl…¤call·_handle_error(::String)§inlinedÂ¤file¬exception.jl¤lineS¤pathÙ:/home/runner/.julia/packages/PyCall/3fwVL/src/exception.jl…¤call¯macro expansion§inlinedÃ¤file¬exception.jl¤linea¤pathÙ:/home/runner/.julia/packages/PyCall/3fwVL/src/exception.jl…¤call¤#117§inlinedÃ¤file©pyeval.jl¤line&¤pathÙ7/home/runner/.julia/packages/PyCall/3fwVL/src/pyeval.jl…¤call®disable_sigint§inlinedÃ¤file¤c.jl¤lineÍÊ¤path¦./c.jl…¤callÙ„pyeval_(::String, ::PyCall.PyDict{String, PyCall.PyObject, true}, ::PyCall.PyDict{String, PyCall.PyObject, true}, ::Int64, ::String)§inlinedÂ¤file©pyeval.jl¤line%¤pathÙ7/home/runner/.julia/packages/PyCall/3fwVL/src/pyeval.jl…¤call¯macro expansion§inlinedÃ¤file©pyeval.jl¤lineÌæ¤pathÙ7/home/runner/.julia/packages/PyCall/3fwVL/src/pyeval.jl…¤call¯top-level scope§inlinedÃ¤fileÙ5PythonHTML.jl#==#1a3ae116-5944-4ad1-81dd-fd9cfd71bc36¤line¤pathÙÕ/home/runner/work/Because-Fons-Wanted-Me-To-Upload-Me-Stuff-So-Here-You-Go.pluto.jl/Because-Fons-Wanted-Me-To-Upload-Me-Stuff-So-Here-You-Go.pluto.jl/Notebooks/PythonHTML.jl#==#1a3ae116-5944-4ad1-81dd-fd9cfd71bc36°persist_js_stateÂ¤mimeÙ'application/vnd.pluto.stacktrace+object²last_run_timestampËAØnÖ"Åcª·has_pluto_hook_featuresÂ¬rootassigneeÀ§cell_idÙ$1a3ae116-5944-4ad1-81dd-fd9cfd71bc36¹depends_on_disabled_cellsÂ§runtimeÀµpublished_object_keys§erroredÃÙ$6d627906-3907-11ec-3cfe-29c98fbdc685ˆ¦queuedÂ§runningÂ¦output†¤body °persist_js_stateÂ¤mimeªtext/plain²last_run_timestampËAØnÖ!Õ’q·has_pluto_hook_featuresÂ¬rootassigneeÀ§cell_idÙ$6d627906-3907-11ec-3cfe-29c98fbdc685¹depends_on_disabled_cellsÂ§runtimeÎ=¤Åºµpublished_object_keys§erroredÂ±cell_dependencies…Ù$9d82f569-af0d-44ef-bb92-d2280856b20a„´precedence_heuristic	§cell_idÙ$9d82f569-af0d-44ef-bb92-d2280856b20a´downstream_cells_map€²upstream_cells_map‚¤HTML¡x‘Ù$1a3ae116-5944-4ad1-81dd-fd9cfd71bc36Ù$38fc7615-49e3-461d-a5eb-aed847626016„´precedence_heuristic	§cell_idÙ$38fc7615-49e3-461d-a5eb-aed847626016´downstream_cells_map€²upstream_cells_map‚µPyCall.pyimport_conda¦PyCall‘Ù$6d627906-3907-11ec-3cfe-29c98fbdc685Ù$e747d066-f47f-4c71-b80d-7fb5b860c4a5„´precedence_heuristic	§cell_idÙ$e747d066-f47f-4c71-b80d-7fb5b860c4a5´downstream_cells_map€²upstream_cells_map‚µPyCall.pyimport_conda¦PyCall‘Ù$6d627906-3907-11ec-3cfe-29c98fbdc685Ù$1a3ae116-5944-4ad1-81dd-fd9cfd71bc36„´precedence_heuristic	§cell_idÙ$1a3ae116-5944-4ad1-81dd-fd9cfd71bc36´downstream_cells_map…¨#272#ret¦#273#m¦#271#m¡x‘Ù$9d82f569-af0d-44ef-bb92-d2280856b20a¨#274#ret²upstream_cells_map†«Base.string¤Base²PyCall.pynamespace§@py_str‘Ù$6d627906-3907-11ec-3cfe-29c98fbdc685¦PyCall‘Ù$6d627906-3907-11ec-3cfe-29c98fbdc685®PyCall.pyeval_Ù$6d627906-3907-11ec-3cfe-29c98fbdc685„´precedence_heuristic	§cell_idÙ$6d627906-3907-11ec-3cfe-29c98fbdc685´downstream_cells_map‚§@py_str‘Ù$1a3ae116-5944-4ad1-81dd-fd9cfd71bc36¦PyCall“Ù$e747d066-f47f-4c71-b80d-7fb5b860c4a5Ù$38fc7615-49e3-461d-a5eb-aed847626016Ù$1a3ae116-5944-4ad1-81dd-fd9cfd71bc36²upstream_cells_map€´cell_execution_order•Ù$6d627906-3907-11ec-3cfe-29c98fbdc685Ù$e747d066-f47f-4c71-b80d-7fb5b860c4a5Ù$38fc7615-49e3-461d-a5eb-aed847626016Ù$1a3ae116-5944-4ad1-81dd-fd9cfd71bc36Ù$9d82f569-af0d-44ef-bb92-d2280856b20a´last_hot_reload_timeË        ©shortpath­PythonHTML.jl®process_status¥ready¤pathÙ­/home/runner/work/Because-Fons-Wanted-Me-To-Upload-Me-Stuff-So-Here-You-Go.pluto.jl/Because-Fons-Wanted-Me-To-Upload-Me-Stuff-So-Here-You-Go.pluto.jl/Notebooks/PythonHTML.jl®last_save_timeËAØnÖ¦ïªcell_order•Ù$6d627906-3907-11ec-3cfe-29c98fbdc685Ù$e747d066-f47f-4c71-b80d-7fb5b860c4a5Ù$38fc7615-49e3-461d-a5eb-aed847626016Ù$1a3ae116-5944-4ad1-81dd-fd9cfd71bc36Ù$9d82f569-af0d-44ef-bb92-d2280856b20a±published_objects€¥nbpkg‡²installed_versions¦PyCall¦1.92.5°terminal_outputs¦PyCallÚ[32m[1m   Installed[22m[39m VersionParsing â”€ v1.2.1
+[32m[1m   Installed[22m[39m Conda â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ v1.5.2
+[32m[1m   Installed[22m[39m PyCall â”€â”€â”€â”€â”€â”€â”€â”€â”€ v1.92.5
+[32m[1m  No Changes[22m[39m to `/tmp/jl_RaVnVq/Project.toml`
+[32m[1m    Updating[22m[39m `/tmp/jl_RaVnVq/Manifest.toml`
+ [90m [56f22d72] [39m[92m+ Artifacts[39m
+ [90m [ea8e919c] [39m[92m+ SHA[39m
+ [90m [e66e0078] [39m[92m+ CompilerSupportLibraries_jll[39m
+ [90m [4536629a] [39m[92m+ OpenBLAS_jll[39m
+ [90m [8e850b90] [39m[92m+ libblastrampoline_jll[39m
+[32m[1m    Building[22m[39m Conda â”€â†’ `~/.julia/scratchspaces/44cfe95a-1eb2-52ea-b672-e2afdf69b78f/299304989a5e6473d985212c28928899c74e9421/build.log`
+[32m[1m    Building[22m[39m PyCall â†’ `~/.julia/scratchspaces/44cfe95a-1eb2-52ea-b672-e2afdf69b78f/4ba3651d33ef76e24fef6a598b63ffd1c5e1cd17/build.log`
+[32m[1mPrecompiling[22m[39m project...
+[32m  âœ“ [39mPyCall
+  1 dependency successfully precompiled in 5 seconds (8 already precompiled)
+§enabledÃ·restart_recommended_msgÀ´restart_required_msgÀ­busy_packages¬instantiatedÃ«cell_inputs…Ù$9d82f569-af0d-44ef-bb92-d2280856b20a„§cell_idÙ$9d82f569-af0d-44ef-bb92-d2280856b20a°running_disabledÂ¤code´HTML(x["text/html"])«code_foldedÂÙ$38fc7615-49e3-461d-a5eb-aed847626016„§cell_idÙ$38fc7615-49e3-461d-a5eb-aed847626016°running_disabledÂ¤codeÙFPyCall.pyimport_conda("vega_datasets", "vega_datasets", "conda-forge")«code_foldedÂÙ$e747d066-f47f-4c71-b80d-7fb5b860c4a5„§cell_idÙ$e747d066-f47f-4c71-b80d-7fb5b860c4a5°running_disabledÂ¤codeÙ9PyCall.pyimport_conda("altair", "altair" , "conda-forge")«code_foldedÂÙ$1a3ae116-5944-4ad1-81dd-fd9cfd71bc36„§cell_idÙ$1a3ae116-5944-4ad1-81dd-fd9cfd71bc36°running_disabledÂ¤codeÚ"begin
+	py"""
+	import altair as alt
+	
+	# load a simple dataset as a pandas DataFrame
+	from vega_datasets import data
+	cars = data.cars()
+	x = alt.Chart(cars).mark_point().encode(
+	    x='Horsepower',
+	    y='Miles_per_Gallon',
+	    color='Origin',
+	)._repr_mimebundle_()
+	"""
+
+	x = py"x"
+end«code_foldedÂÙ$6d627906-3907-11ec-3cfe-29c98fbdc685„§cell_idÙ$6d627906-3907-11ec-3cfe-29c98fbdc685°running_disabledÂ¤code¾import PyCall: PyCall, @py_str«code_foldedÂ«notebook_idÙ$38a98f64-5e83-11ec-1146-9bcdb90a00a4«in_temp_dirÂ
