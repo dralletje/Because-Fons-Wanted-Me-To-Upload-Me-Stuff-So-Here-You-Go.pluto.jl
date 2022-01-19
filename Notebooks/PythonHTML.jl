@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.17.0
+# v0.17.3
 
 using Markdown
 using InteractiveUtils
@@ -25,14 +25,29 @@ begin
 	    x='Horsepower',
 	    y='Miles_per_Gallon',
 	    color='Origin',
-	)._repr_mimebundle_()
+	)
 	"""
 
 	x = py"x"
 end
 
-# ╔═╡ 9d82f569-af0d-44ef-bb92-d2280856b20a
-HTML(x["text/html"])
+# ╔═╡ de2d68ef-d1e4-4dea-870b-2b2c0e1334a6
+begin
+	struct MimeBundleShow
+		python_object::PyCall.PyObject
+	end
+	
+	function Base.showable(mime::MIME{sym}, o::MimeBundleShow) where sym
+		py"$(sym) in $(o.python_object)._repr_mimebundle_()"
+	end
+
+	function Base.show(io::IO, mime::MIME{sym}, o::MimeBundleShow) where sym
+		write(io, py"$(o.python_object)._repr_mimebundle_()[$(sym)]")
+	end
+end
+
+# ╔═╡ 7c1f2553-f5ed-457d-93f8-b6ab61a4ebac
+MimeBundleShow(x)
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -123,6 +138,7 @@ version = "1.2.1"
 # ╠═e747d066-f47f-4c71-b80d-7fb5b860c4a5
 # ╠═38fc7615-49e3-461d-a5eb-aed847626016
 # ╠═1a3ae116-5944-4ad1-81dd-fd9cfd71bc36
-# ╠═9d82f569-af0d-44ef-bb92-d2280856b20a
+# ╠═7c1f2553-f5ed-457d-93f8-b6ab61a4ebac
+# ╠═de2d68ef-d1e4-4dea-870b-2b2c0e1334a6
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

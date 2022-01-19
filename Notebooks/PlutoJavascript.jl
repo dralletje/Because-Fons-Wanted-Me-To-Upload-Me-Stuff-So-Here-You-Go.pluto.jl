@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.17.1
+# v0.17.3
 
 using Markdown
 using InteractiveUtils
@@ -54,6 +54,12 @@ pluto-cell.running .pluto-observablehq-like[pluto-js-renderer="app"] > *,
 	cursor: wait;
 }
 """
+
+# ╔═╡ 7a734e9c-341f-46d9-91a5-1f99d1ba2432
+g = 1 + 1
+
+# ╔═╡ c3631b64-f558-4f52-a3a0-6fd020d411b3
+y = g + 3
 
 # ╔═╡ 1358d748-fa55-428f-8dd3-b401cca323ef
 md"### Toggle between value, element and error"
@@ -319,7 +325,7 @@ function Base.show(io::IO, ::MIME"text/html", ref::JavascriptRef)
 		return widget_container;
 		</script>
 	""")
-end
+end;
 
 # ╔═╡ 3da48b70-6f5a-440b-84c7-167aae2b7ac9
 "Render javascript for state"
@@ -341,13 +347,13 @@ function Base.show(io::IO, ::MIME"application/javascript", ref::JavascriptRef)
 		return window.pluto_value_registry[ref_id].promise
 	})())
 	""")
-end
+end;
 
 # ╔═╡ 3dc4c309-e8b4-4265-b325-7fa3ebc2ac40
 "Same as javascript but no mime"
 function Base.show(io::IO, ref::JavascriptRef)
 	show(io, MIME("application/javascript"), ref)
-end
+end;
 
 # ╔═╡ eeae3d5a-adcd-4641-adea-2c39b92ea26f
 function expression_to_string(expr)
@@ -432,7 +438,7 @@ macro javascript(expr::Expr)
 		is_expression = $(is_expression)
 
 		string_parts = []
-		variables_to_load = Dict{String,String}()
+		variables_to_load = Dict{String,Any}()
 		for (is_static, part, name) in expression_parts
 			if is_static
 				push!(string_parts, part)
@@ -489,9 +495,6 @@ js_number = @javascript "10"
 
 # ╔═╡ 1b3d8ce9-0b9d-4f02-8e2c-2c5a4d560a3b
 js_function = @javascript "(a, b, c) => {}"
-
-# ╔═╡ 0b6faa4e-84a1-49bc-b3ce-c99e87bc4ada
-typeof(js_function)
 
 # ╔═╡ 7b23a041-bbe7-4e47-a264-0db20366422a
 js_array = @javascript "[1, 2, 3, 4]"
@@ -875,7 +878,6 @@ uuid = "4ec0a83e-493e-50e2-b9ac-8f72acf5a8f5"
 # ╠═ca0ebf01-e620-4029-a583-376859de7384
 # ╠═3ea4d132-2d69-497e-a1d9-71bdb1ca9ac5
 # ╠═1b3d8ce9-0b9d-4f02-8e2c-2c5a4d560a3b
-# ╠═0b6faa4e-84a1-49bc-b3ce-c99e87bc4ada
 # ╠═7b23a041-bbe7-4e47-a264-0db20366422a
 # ╠═4fee059b-b327-463b-ba4b-1c495a899ae4
 # ╠═4ffd15b8-55fc-4840-ac6d-427c08b6810d
@@ -887,6 +889,8 @@ uuid = "4ec0a83e-493e-50e2-b9ac-8f72acf5a8f5"
 # ╠═28636b0c-fe8a-487a-8667-3415dfe2342e
 # ╠═7017c598-641a-4958-84be-09cd6de58d2b
 # ╠═0ee7c824-4230-4f2e-b51d-97e2fd990efa
+# ╠═7a734e9c-341f-46d9-91a5-1f99d1ba2432
+# ╠═c3631b64-f558-4f52-a3a0-6fd020d411b3
 # ╟─1358d748-fa55-428f-8dd3-b401cca323ef
 # ╠═ec8f2ae7-f5d4-40c8-af46-d102a56bace0
 # ╠═90f81a53-aff3-464d-b30a-1b641eedbba9
@@ -914,8 +918,8 @@ uuid = "4ec0a83e-493e-50e2-b9ac-8f72acf5a8f5"
 # ╠═511ad5a6-f913-43de-b73c-d0b91d70aa85
 # ╠═dfc22d15-4dc2-49a5-8153-7b09fe9117a2
 # ╠═f3e4cce5-ead1-4644-908a-ef5cf2ee3986
-# ╟─3da48b70-6f5a-440b-84c7-167aae2b7ac9
-# ╟─3dc4c309-e8b4-4265-b325-7fa3ebc2ac40
+# ╠═3da48b70-6f5a-440b-84c7-167aae2b7ac9
+# ╠═3dc4c309-e8b4-4265-b325-7fa3ebc2ac40
 # ╟─eeae3d5a-adcd-4641-adea-2c39b92ea26f
 # ╟─e4d22957-7020-42bd-8a1f-162c3757502f
 # ╟─d7c12348-0aa2-44c4-81c3-87ebcd1779ee
@@ -931,7 +935,7 @@ uuid = "4ec0a83e-493e-50e2-b9ac-8f72acf5a8f5"
 # ╟─3353d69f-45ff-4d46-88c2-924e3ee6b5d7
 # ╟─c5b75129-fd6c-44f3-aeee-fa366e0839dc
 # ╟─186079ef-487e-4065-a546-e775c7ee45ba
-# ╟─8afd3e48-c655-4b02-9c92-92eed0efe9a2
+# ╠═8afd3e48-c655-4b02-9c92-92eed0efe9a2
 # ╟─812212dd-71e9-4789-9f99-de8d7107626d
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
