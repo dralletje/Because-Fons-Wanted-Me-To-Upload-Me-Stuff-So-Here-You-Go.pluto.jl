@@ -50,10 +50,10 @@ rainbow = [Colors.cie_color_match(λ) for λ=380:1.5:780]
 
 # ╔═╡ 0d4cd2e9-eb66-4ab6-917e-ead6a09e8c54
 let
-	plot = Plots.plot(xaxis="λ (nm)", yaxis="Sensitivity")
-	Plots.plot!(plot, Colors.cie1931_cmf_table[:,1], color="red", label="x̄")
-	Plots.plot!(plot, Colors.cie1964_cmf_table[:,2], color="green", label="ȳ")
-	Plots.plot!(plot, Colors.cie1964_cmf_table[:,3], color="blue", label="z̄")
+	plot = Plots.plot(xaxis="λ (nm)", yaxis="Sensitivity", background="transparent")
+	Plots.plot!(plot, Colors.cie1931_cmf_table[:,1], color="#ff7500", label="x̄")
+	Plots.plot!(plot, Colors.cie1964_cmf_table[:,2], color="#60ff00", label="ȳ")
+	Plots.plot!(plot, Colors.cie1964_cmf_table[:,3], color="#7700ff", label="z̄")
 	plot
 end
 
@@ -67,7 +67,7 @@ To do this, we'll have to imbue the XYZ color space with vector space operations
 """
 
 # ╔═╡ 597b79c6-59d4-436f-a2ac-2ffa94db840c
-mapreduce(Colors.cie_color_match, +, 380:780)
+sum(map(Colors.cie_color_match, 380:780))
 
 # ╔═╡ 771cd920-c957-413e-9bf2-6c5badf3f431
 @markdown """
@@ -188,7 +188,7 @@ end
 # ╔═╡ f5d75003-d62c-4524-8763-d5358abae28d
 #Convolution with flat power spectrum
 [
-	mapreduce(Colors.cie_color_match, +, 380:780) |> normalize0,
+	sum(map(Colors.cie_color_match, 380:780)) |> normalize0,
 	Colors.RGB(255f8, 255f8, 255f8),
 ]
 
@@ -523,7 +523,7 @@ const hc_k  = 0.0143877696*K*m
 Trange = 1000K:1000K:9000K
 
 # ╔═╡ 4ac4f213-48cd-48f3-8ef2-900c9c6411a7
-T☉=5778K #Temperature of the sun
+T☉ = 5778K #Temperature of the sun
 
 # ╔═╡ 47a3ceca-3f04-4b79-807c-05a93a78dbb1
 function planckian_locus(T::Unitful.Temperature)
@@ -564,25 +564,25 @@ Gadfly.plot([λ->planck(λ*nm,T=T)*(1e-9m)^3/W for T in Trange], 0, 2000,
 
 # ╔═╡ 1497a357-5202-4b31-84d7-c93fd7c6aff3
 Base.convert(::Type{Colors.xyY}, T::Unitful.Temperature) = 
-mapreduce(λ ->
-	Unitful.upreferred(
-		planck(λ * nm, T=T)*m^3/W
-	) * Colors.cie_color_match(λ),
-	+,
-	380:780,
-) |> normalize0
+	sum(map(380:780) do λ
+		Unitful.upreferred(
+			planck(λ * nm, T=T)*m^3/W
+		) * Colors.cie_color_match(λ)
+	end) |> normalize0
 
 # ╔═╡ ff45fce9-97dc-4693-807e-13f0e810bcd1
-rainbowxyY = map(λ->convert(Colors.xyY, Colors.cie_color_match(λ)), 380:780)
+rainbowxyY = map(380:780) do λ
+	convert(Colors.xyY, Colors.cie_color_match(λ))
+end
 
 # ╔═╡ e0242ad5-5614-45cb-a506-380eb2826c79
 PlutoUI.as_svg(Gadfly.plot(
 	Geom.point,
-	Theme(key_position=:none),
-    x=[c.x for c in rainbowxyY],
+	Theme(key_position=:none, highlight_width=0 * Gadfly.pt),
+	x=[c.x for c in rainbowxyY],
 	y=[c.y for c in rainbowxyY],
-    color=rainbowxyY,
-    Scale.discrete_color_manual(rainbow...),
+	color=rainbowxyY,
+	Scale.discrete_color_manual(rainbow...),
 ))
 
 
@@ -607,7 +607,7 @@ end
 # ╔═╡ 9c7d1ef8-b032-4410-9560-e317b66956fe
 #Convolution with flat power spectrum
 [
-	mapreduce(Colors.cie_color_match, +, 380:780) |> normalize,
+	sum(map(Colors.cie_color_match, 380:780)) |> normalize,
 	Colors.RGB(255f8, 255f8, 255f8),
 ]
 
@@ -1895,7 +1895,7 @@ version = "0.9.1+5"
 # ╟─79a54b9b-8fe0-4f5e-a983-c54d0696a125
 # ╠═38706b8d-1eb9-41a0-9de8-90f94ef62fa6
 # ╟─a7bf2ef5-0029-4dcb-b4a2-24d9a378d1fb
-# ╠═0d4cd2e9-eb66-4ab6-917e-ead6a09e8c54
+# ╟─0d4cd2e9-eb66-4ab6-917e-ead6a09e8c54
 # ╟─aa5e68d7-e31f-42f8-b431-48fed2901eb9
 # ╠═597b79c6-59d4-436f-a2ac-2ffa94db840c
 # ╟─20e44357-8ffa-43dd-bc4b-08b1fec32b6b
