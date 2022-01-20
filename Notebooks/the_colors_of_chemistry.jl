@@ -16,17 +16,11 @@ This notebook documents my exploration of color theory and its applications to p
 # ╔═╡ 95461946-7890-11ec-2f39-95d40be17995
 import Colors
 
-# ╔═╡ 4fbc02ee-6018-4955-a0dc-6f86c2622f6a
-x̄(λ) = Colors.cie1931_cmf_table[:, λ]
+# ╔═╡ 372cfd0f-b712-4f56-918e-46728bc0a434
+cie1931_380_to_780 = Colors.cie1931_cmf_table[begin+(380-360):begin+(380-360)+400, :]
 
-# ╔═╡ aa5e68d7-e31f-42f8-b431-48fed2901eb9
-md"""
-## Computing white
-
-As a sanity check, I wanted to make sure that projecting a flat power spectrum into the XYZ space produced a white color. This is white in the purely technical sense, of having the same intensity of light at every wavelength.
-
-To do this, we'll have to imbue the XYZ color space with vector space operations; in particular, we want to add and scale vectors. It follows by the definition of the XYZ color space that the usual notions of these operations apply (the color space has no curvature). These operations are not currently in Color.jl, but Julia makes it very easy to extend:
-"""
+# ╔═╡ 36107461-eadc-4d2a-9081-faaa8f80f784
+Colors.cie_color_match(480)
 
 # ╔═╡ 53ee62eb-951b-4f74-bcb9-2f0f67b7e92a
 import Distributed
@@ -130,9 +124,6 @@ function parse_jdx(input)
 	AbsorbanceSpectrum(rawspectrum[:,1], rawspectrum[:,2])
 end
 
-# ╔═╡ dfc024aa-0eaf-485b-a9d8-f21ed27a66fb
-[Colors.XYZ(x, y, z) for (x, y, z) in Colors.cie1931_cmf_table]
-
 # ╔═╡ cab68da8-e982-4f20-aca4-3b08a0cbb430
 azobenzene_absorbance_spectrum = let
 	#Download UV-vis spectrum from NIST Chemistry Webbook
@@ -177,6 +168,15 @@ end
 # ╔═╡ 776a7f45-1745-4ae2-a964-957737c31243
 import Unitful: Unitful, @u_str
 
+# ╔═╡ 4fbc02ee-6018-4955-a0dc-6f86c2622f6a
+x̅(λ::Unitful.Length{Int}) = Colors.cie1931_cmf_table[begin+Unitful.ustrip(λ)-360, 1]
+
+# ╔═╡ e2db3fa1-abef-4e47-b163-9b3be50780ec
+y̅(λ::Unitful.Length{Int}) = Colors.cie1931_cmf_table[begin+Unitful.ustrip(λ)-360, 2]
+
+# ╔═╡ 3f5ab0d0-b7de-48b3-ba46-6c6f524c1ce7
+z̅(λ::Unitful.Length{Int}) = Colors.cie1931_cmf_table[begin+Unitful.ustrip(λ)-360, 3]
+
 # ╔═╡ 11504926-219a-4a29-b370-8c7344a78310
 m = u"m"
 
@@ -220,10 +220,22 @@ planck(λ; T=5778.0K) =
 nm = u"nm"
 
 # ╔═╡ a622e3a6-826a-4900-a4d3-2b88733027bd
-X(λ) = sum(x̄.(380nm:λ))
+X(λ) = sum(x̅.(380nm:1nm:λ))
+
+# ╔═╡ 51ebf9cc-aabd-4b87-bf32-701a87800ce3
+Y(λ) = sum(y̅.(380nm:1nm:λ))
+
+# ╔═╡ 9db97697-ea90-40f2-a839-e532163a5a47
+Z(λ) = sum(z̅.(380nm:1nm:λ))
 
 # ╔═╡ b307b0d5-6d80-4189-afa9-5371f14cdc33
 human_wavelength = 380nm:1nm:780nm
+
+# ╔═╡ b35a6631-5c80-47da-a372-7b52f7cceb3e
+Colors.XYZ(x̅(480nm), y̅(480nm), z̅(480nm)) === Colors.cie_color_match(480)
+
+# ╔═╡ 2c0827b8-dc5c-4d09-bf2f-6db88ef44acc
+Colors.XYZ(x̅(480nm), y̅(480nm), z̅(480nm))
 
 # ╔═╡ 1497a357-5202-4b31-84d7-c93fd7c6aff3
 Base.convert(::Type{Colors.xyY}, T::Unitful.Temperature) = 
@@ -307,6 +319,17 @@ end
 
 # ╔═╡ 35b969df-04df-4c2f-a395-59e024dc9d3b
 import MarkdownLiteral: @markdown
+
+# ╔═╡ aa5e68d7-e31f-42f8-b431-48fed2901eb9
+@markdown """
+## Computing white
+
+As a sanity check, I wanted to make sure that projecting a flat power spectrum into the XYZ space produced a white color. This is white in the purely technical sense, of having the same intensity of light at every wavelength.
+
+To do this, we'll have to imbue the XYZ color space with vector space operations; in particular, we want to add and scale vectors. It follows by the definition of the XYZ color space that the usual notions of these operations apply (the color space has no curvature).
+<del>These operations are not currently in Colors.jl, but Julia makes it very easy to extend:</del>
+These operations are in Colors.jl, so nothing we need to do.
+"""
 
 # ╔═╡ 20e44357-8ffa-43dd-bc4b-08b1fec32b6b
 @markdown """
@@ -524,9 +547,18 @@ import Plots
 # ╔═╡ 0d4cd2e9-eb66-4ab6-917e-ead6a09e8c54
 let
 	plot = Plots.plot(xaxis="λ (nm)", yaxis="Sensitivity", background="transparent")
-	Plots.plot!(plot, Colors.cie1931_cmf_table[:,1], color="#ff7500", label="x̄")
-	Plots.plot!(plot, Colors.cie1964_cmf_table[:,2], color="#60ff00", label="ȳ")
-	Plots.plot!(plot, Colors.cie1964_cmf_table[:,3], color="#7700ff", label="z̄")
+	Plots.plot!(plot, 360:830, Colors.cie1931_cmf_table[:,1],
+		color=Colors.XYZ(1, 0, 0), 
+		label="x̅"
+	)
+	Plots.plot!(plot, 360:830, Colors.cie1931_cmf_table[:,2],
+		color=Colors.XYZ(0, 1, 0), 
+		label="y̅"
+	)
+	Plots.plot!(plot, 360:830, Colors.cie1931_cmf_table[:,3],
+		color=Colors.XYZ(0, 0, 1), 
+		label="z̅"
+	)
 	plot
 end
 
@@ -629,8 +661,9 @@ Color theory focuses mainly on photoptic vision in the 380-780 nm region. Comput
 
 # ╔═╡ a7bf2ef5-0029-4dcb-b4a2-24d9a378d1fb
 @markdown """
-Raw light power and the XYZ color space
-The modern foundations of color theory can be traced back to the CIE 1931 color space model. Building upon centuries of empirical evidence that three coordinates are sufficient to quantify perceived colors, the CIE model defines three basis functions $(math"\overline{x}(\lambda)"), $(math"\overline{y}(\lambda)") and $(math"\overline{z}(\lambda)") over (most of) the visible wavelength range 380nm $(math"\le\lambda\le") 780 nm.
+## Raw light power and the XYZ color space
+
+The modern foundations of color theory can be traced back to the CIE 1931 color space model. Building upon centuries of empirical evidence that three coordinates are sufficient to quantify perceived colors, the CIE model defines three basis functions $(math"\overline{x}(\lambda)"), $(math"\overline{y}(\lambda)") and $(math"\overline{z}(\lambda)") over (most of) the visible wavelength range $(code"380nm") $(math"\le\lambda\le") $(code"780nm").
 
 These basis functions define a linear vector space known as the XYZ color space. An arbitrary function $(math"f(\lambda)") has a three-dimensional projection as a vector in this vector space, with components known as tristimulus values that are given by the projections
 
@@ -646,7 +679,9 @@ $(math"
 Z = \int f(\lambda) \overline{z}(\lambda) d\lambda
 ")
 
-The CIE standard defines the basis functions in discrete tabular form; the raw data for $(math"\overline{x}(\lambda)"), $(math"\overline{y}(\lambda)") and $(math"\overline{z}(\lambda)") are available in $(code"Color.cie_color_match_table[:,i] for i=1:3") respectively.
+The CIE standard defines the basis functions in discrete tabular form; the raw data for $(math"\overline{x}(\lambda)"), $(math"\overline{y}(\lambda)") and $(math"\overline{z}(\lambda)") are available in $(code"Colors.cie1931_cmf_table[:,i]") for $(code"i=1:3") respectively.
+
+Instead of the earlier mentioned $(code"380nm") to $(code"780nm") range, however, $(code"Colors.cie1931_cmf_table") [is mentioned](https://github.com/JuliaGraphics/Colors.jl/blob/007a8c8628804beb9485fe59d475c2a9e5040b77/src/colormatch.jl#L69) to start at $(code"360nm") and go till $(code"830nm").
 """
 
 # ╔═╡ aecc5d71-1e4c-42f2-994d-78d5c4cd8f43
@@ -2007,9 +2042,17 @@ version = "0.9.1+5"
 # ╟─79a54b9b-8fe0-4f5e-a983-c54d0696a125
 # ╠═38706b8d-1eb9-41a0-9de8-90f94ef62fa6
 # ╟─a7bf2ef5-0029-4dcb-b4a2-24d9a378d1fb
+# ╠═372cfd0f-b712-4f56-918e-46728bc0a434
 # ╠═4fbc02ee-6018-4955-a0dc-6f86c2622f6a
+# ╠═e2db3fa1-abef-4e47-b163-9b3be50780ec
+# ╠═3f5ab0d0-b7de-48b3-ba46-6c6f524c1ce7
 # ╠═a622e3a6-826a-4900-a4d3-2b88733027bd
+# ╠═51ebf9cc-aabd-4b87-bf32-701a87800ce3
+# ╠═9db97697-ea90-40f2-a839-e532163a5a47
 # ╠═b307b0d5-6d80-4189-afa9-5371f14cdc33
+# ╠═b35a6631-5c80-47da-a372-7b52f7cceb3e
+# ╠═2c0827b8-dc5c-4d09-bf2f-6db88ef44acc
+# ╠═36107461-eadc-4d2a-9081-faaa8f80f784
 # ╠═0d4cd2e9-eb66-4ab6-917e-ead6a09e8c54
 # ╟─aa5e68d7-e31f-42f8-b431-48fed2901eb9
 # ╠═597b79c6-59d4-436f-a2ac-2ffa94db840c
@@ -2079,7 +2122,6 @@ version = "0.9.1+5"
 # ╟─81fe97b8-98bd-416e-b82c-2754c786cb35
 # ╠═b97920d8-97a5-42c2-9c2a-9f2ee0969261
 # ╟─ba81901a-ed49-446b-be2e-00edcee3ad15
-# ╠═dfc024aa-0eaf-485b-a9d8-f21ed27a66fb
 # ╟─95010455-dd25-4075-87c3-b015c383c493
 # ╟─e9bd00e7-5829-4d89-944b-5f7ab7bb49bb
 # ╠═cab68da8-e982-4f20-aca4-3b08a0cbb430
