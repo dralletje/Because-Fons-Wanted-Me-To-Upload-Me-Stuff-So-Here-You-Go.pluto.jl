@@ -8,54 +8,16 @@ using InteractiveUtils
 md"""
 # The colors of chemistry
 
-This notebook documents my exploration of color theory and its applications to photochemistry. It also shows off the functionality of several Julia packages: Color.jl for color theory and colorimetry, SIUnits.jl for unitful computations, and Gadfly.jl for graph plotting.
+This notebook documents my exploration of color theory and its applications to photochemistry. It also shows off the functionality of several Julia packages: Colors.jl for color theory and colorimetry, Unitful.jl for unitful computations, and Gadfly.jl and Plots.jl for graph plotting.
 
-[Original (jupyter) notebook](https://jiahao.github.io/julia-blog/2014/06/09/the-colors-of-chemistry.html)
+> This is an version of a [(jupyter) notebook](https://jiahao.github.io/julia-blog/2014/06/09/the-colors-of-chemistry.html) by [Jiahao Chen](https://github.com/jiahao) adapted for Pluto and Julia 1.7
 """
 
 # ╔═╡ 95461946-7890-11ec-2f39-95d40be17995
 import Colors
 
-# ╔═╡ 30300f37-362a-4b00-b3e7-0423107c98a8
-import Gadfly: Gadfly, Geom, Theme, layer, Guide, Scale
-
-# ╔═╡ 776a7f45-1745-4ae2-a964-957737c31243
-import Unitful: Unitful, @u_str
-
-# ╔═╡ 35b969df-04df-4c2f-a395-59e024dc9d3b
-import MarkdownLiteral: @markdown
-
-# ╔═╡ 0e4f40e0-521f-421f-af23-671fe2ccc272
-import Plots
-
-# ╔═╡ bb50cddd-541c-4119-9fde-9062265866f1
-import PlutoUI
-
-# ╔═╡ 8a773a45-4e90-4192-9482-eec0474b738f
-import Downloads
-
-# ╔═╡ 79a54b9b-8fe0-4f5e-a983-c54d0696a125
-md"""
-## Color vision and the visible spectrum
-
-Physically speaking, light is radiation in the form of electromagnetic waves, and can therefore be quantified by certain characteristics such as wavelength and amplitude. Color theory studies how such characteristics get translated into a sensory perception, of color.
-
-The human eye supports two types of vision: photoptic vision occurs under bright light, and scotopic vision occurs under dim light. These two modes come from using different types of vision cells, namely cones and rods respectively. Only cones sense color, and are sensitive to light with wavelengths in the range of 350-800 nm. The actual range can vary from person to person.
-
-Color theory focuses mainly on photoptic vision in the 380-780 nm region. Computations for color theory are provided by functions in the Julia package Color.jl. For example, cie_color_match calculates the perceived color produced by monochromatic light, i.e. light waves of a single, pure wavelength.
-"""
-
-# ╔═╡ 38706b8d-1eb9-41a0-9de8-90f94ef62fa6
-rainbow = [Colors.cie_color_match(λ) for λ=380:1.5:780]
-
-# ╔═╡ 0d4cd2e9-eb66-4ab6-917e-ead6a09e8c54
-let
-	plot = Plots.plot(xaxis="λ (nm)", yaxis="Sensitivity", background="transparent")
-	Plots.plot!(plot, Colors.cie1931_cmf_table[:,1], color="#ff7500", label="x̄")
-	Plots.plot!(plot, Colors.cie1964_cmf_table[:,2], color="#60ff00", label="ȳ")
-	Plots.plot!(plot, Colors.cie1964_cmf_table[:,3], color="#7700ff", label="z̄")
-	plot
-end
+# ╔═╡ 4fbc02ee-6018-4955-a0dc-6f86c2622f6a
+x̄(λ) = Colors.cie1931_cmf_table[:, λ]
 
 # ╔═╡ aa5e68d7-e31f-42f8-b431-48fed2901eb9
 md"""
@@ -66,30 +28,11 @@ As a sanity check, I wanted to make sure that projecting a flat power spectrum i
 To do this, we'll have to imbue the XYZ color space with vector space operations; in particular, we want to add and scale vectors. It follows by the definition of the XYZ color space that the usual notions of these operations apply (the color space has no curvature). These operations are not currently in Color.jl, but Julia makes it very easy to extend:
 """
 
-# ╔═╡ 597b79c6-59d4-436f-a2ac-2ffa94db840c
-sum(map(Colors.cie_color_match, 380:780))
+# ╔═╡ 53ee62eb-951b-4f74-bcb9-2f0f67b7e92a
+import Distributed
 
-# ╔═╡ 771cd920-c957-413e-9bf2-6c5badf3f431
-@markdown """
-It is easy to normalize the perceptual color in the xyY coordinate system.
-"""
-
-# ╔═╡ 06699d95-72b6-4645-8171-ddcf7a75dcf0
-@markdown """
-Oops, this isn't white. What's going on?
-
-Turns out that this is a white point issue. The definition I wanted turns out to be the E white point (`Color.WP_E`), whereas the CIE standard uses a different default white point (`Color.WP_DEFAULT`), which is the D65 white point (`Color.WP_D65`, the 'noon daylight' standard used by most displays). Conveniently, `Colors.jl` provides `Color.whitebalance` to correct for the difference in white points. So let's try this again.
-"""
-
-# ╔═╡ 1ad418c2-76fb-46d9-a20a-113b7593883e
-@markdown """
-Ok, this looks white now. We're ready to start visualizing some physical data!
-"""
-
-# ╔═╡ 7e6a4415-9526-47d0-b848-5f074d612b88
-@markdown """
-Let's look at the computed colors for blackbodies at various temperatures. The code below defines a new conversion function from temperature to an xyY color. (Note: For some reason, I got better results by disabling color correction in normalize. I'm not sure why.)
-"""
+# ╔═╡ 1950d14c-0c6c-49e1-acca-8dbe0b2e975c
+Distributed.myid()
 
 # ╔═╡ 5fda05d3-dd29-46be-855d-2781397d0354
 md"""
@@ -120,45 +63,9 @@ struct TransmissionSpectrum{T<:Real} <: Spectrum{T}
     T :: Vector{T} # Transmission coefficent
 end
 
-# ╔═╡ 001cb3c2-d912-4c8b-8836-7be8ad1013c2
-function Base.show(io::IO, mime::MIME"image/svg+xml", S::AbsorbanceSpectrum)
-    show(io, mime, Gadfly.plot(
-		Geom.line,
-		Guide.xlabel("λ (nm)"),
-		Guide.ylabel("Absorbance"),
-		x = S.λ,
-		y = S.ϵ,
-	))
-end
-
-# ╔═╡ 1ca29f42-705c-4420-a0d8-f00e05434416
-function Base.show(io::IO, mime::MIME"image/svg+xml", S::TransmissionSpectrum)
-    show(io, mime, Gadfly.plot(
-		Geom.line,
-		Guide.xlabel("λ (nm)"),
-		Guide.ylabel("Transmittance"),
-      	x = S.λ,
-		y = S.T
-	))
-end
-
-# ╔═╡ ab4957ed-1e17-4466-9e62-89c549cb37ea
-function Base.show(io::IO, mime::MIME"image/svg+xml", Ss::Vector{TransmissionSpectrum})
-    show(io, mime, Gadfly.plot(
-		Guide.xlabel("λ (nm)"),
-		Guide.ylabel("Transmittance"),
-    	[layer(Geom.line, x=S.λ, y=S.T) for S in Ss]...,
-	))
-end
-
 # ╔═╡ edb50a9e-1673-449c-9555-5eb2f9018214
 Base.convert(::Type{TransmissionSpectrum}, S::AbsorbanceSpectrum; cl::Real=0.0001) =
 	TransmissionSpectrum(S.λ, exp10.(-S.ϵ*cl)) #Beer-Lambert Law
-
-# ╔═╡ 9d13a79f-511d-4bdf-a83a-a7abfa7e18a0
-@markdown """
-The transmission spectrum is a function of light intensity over wavelength, and can therefore be projected directly into the XYZ color space as described in the previous section. (In the code snippet below, I've also included some heuristics to cover possible missing data in the transmission spectrum.)
-"""
 
 # ╔═╡ 5266d1f1-43bc-4882-baeb-b6159d3854b9
 function Base.convert(::Type{Colors.xyY}, S::TransmissionSpectrum)
@@ -175,8 +82,9 @@ function Base.convert(::Type{Colors.xyY}, S::TransmissionSpectrum)
 end
 
 # ╔═╡ 2c747ea7-e5cd-43ae-8167-9dd78fd26724
-Base.convert(::Type{Colors.xyY}, S::AbsorbanceSpectrum) =
+function Base.convert(::Type{Colors.xyY}, S::AbsorbanceSpectrum)
 	convert(Colors.xyY, convert(TransmissionSpectrum, S))
+end
 
 # ╔═╡ cbca53c4-556e-4d6a-97da-a68fb41ffa6f
 #Convert XYZ to normalized xyY (with luminosity Y=1.0)
@@ -184,40 +92,6 @@ function normalize0(c::Colors.XYZ)
     d=convert(Colors.xyY, c)
     Colors.xyY(d.x, d.y, 1.0)
 end
-
-# ╔═╡ f5d75003-d62c-4524-8763-d5358abae28d
-#Convolution with flat power spectrum
-[
-	sum(map(Colors.cie_color_match, 380:780)) |> normalize0,
-	Colors.RGB(255f8, 255f8, 255f8),
-]
-
-# ╔═╡ 9b8aca24-538d-4724-b041-feeca77a713e
-#Plot trajectory in chromaticity plane
-function plot_xy(C::AbstractVector{Colors.xyY})
-	# PlutoUI.as_svg(Gadfly.plot(
-	# 	x=[c.x for c in C],
-	#     y=[c.y for c in C],
-	# 	color=C,
-	#     # Gadfly.Scale.discrete_color_manual(C...),
-	#     Gadfly.Geom.point,
-	# 	Gadfly.Theme(key_position=:none),
-	# ))
-
-	Plots.scatter(
-		[c.x for c in C],
-		[c.y for c in C],
-		markercolor=C,
-		legend=false,
-		markerstrokewidth=0,
-		background="transparent",
-	)
-end
-
-# ╔═╡ a238da5d-7bd0-45e3-8310-b16b2ba98eef
-@markdown """
-Finally, here are some short routines for parsing spectral data.
-"""
 
 # ╔═╡ af54005b-4ca5-4a38-b6d3-43ac546d6567
 import CSV
@@ -256,82 +130,8 @@ function parse_jdx(input)
 	AbsorbanceSpectrum(rawspectrum[:,1], rawspectrum[:,2])
 end
 
-# ╔═╡ 28aad279-0704-4330-b1db-387a9f346f6f
-@markdown """
-We are finally ready to start computing colors of molecules! The examples given below reflect (so to speak) a broad spectrum (ha) of molecular species, whose data are available online in several different formats.
-
-I've also included some images of the compounds in question to compare the computed color swatches with pictures of the actual solutions or samples. Again, the color swatches show the entire gamut of colors possible from the given spectra, so each a picture should match a color in the range. (There's also a question about the white balance in each reference picture, which is somewhat of a wildcard.)
-"""
-
-# ╔═╡ a75f5189-48ef-4b15-9755-56dbe3e7ab27
-@markdown """
-## Titanium (III) aqua ion
-"""
-
-# ╔═╡ 13495583-b9f5-4e0a-bcce-292da790daec
-titanium_III_aqua_ion_absorbance_spectrum = parse_jdx(
-	Downloads.download("http://wwwchem.uwimona.edu.jm/spectra/ti3aq.jdx")
-);
-
-# ╔═╡ 40170577-1a9b-4ed2-a42d-d8b49ad4a62e
-@markdown """
-Here is a picture of titanium (III) chloride solution from Wikipedia.
-
-<img
-	style="height:300px"
-	alt="Titanium (III) chloride solution from Wikipedia"
-	src="http://upload.wikimedia.org/wikipedia/commons/c/cd/TiCl3.jpg"
-/>
-"""
-
-# ╔═╡ 3362582f-cbaf-4286-b626-7378b1dff50d
-@markdown """
-## Copper (II) aqua ion
-"""
-
-# ╔═╡ 4dcf9519-6672-4cf6-99a4-8f11363b72b5
-copper_II_aqua_ion_absorbance_spectrum = parse_jdx(
-	Downloads.download("http://wwwchem.uwimona.edu.jm/spectra/cu2aq.jdx")
-);
-
-# ╔═╡ 0b6ac8eb-9584-4dd5-b89d-f6fd19f18955
-@markdown """
-I found a particularly nice picture showing the diffusion of copper sulfate through an aqueous solution, showing a color gradient which corresponds very neatly with the gradient shown in the gamut!
-
-<img
-	alt="Copper sulfate diffusion"
-	src="http://www.nuffieldfoundation.org/sites/default/files/images/Diffusion%20of%20copper%20sulfate%20solution%20in%20water2_2262.jpg"
-	style="height: 200px"
-/>
-"""
-
-# ╔═╡ 81fe97b8-98bd-416e-b82c-2754c786cb35
-@markdown """
-## Copper(II) chlorophyllin
-
-This chlorophyll derivative is used as an edible dye (food additive E141) to give food the color of fresh leaves. So one would expect this to be a nice shade of green.
-"""
-
-# ╔═╡ b97920d8-97a5-42c2-9c2a-9f2ee0969261
-copper_II_chlorophyllin_absorbance_spectrum = parse_jdx(
-	Downloads.download("http://wwwchem.uwimona.edu.jm/spectra/e141.jdx")
-);
-
-# ╔═╡ 95010455-dd25-4075-87c3-b015c383c493
-@markdown """
-<img
-	alt="Chlorophyllin"
-	src="https://upload.wikimedia.org/wikipedia/commons/f/f1/M%C3%A9lisse_Feuilles_FR_2013b.jpg"
-	style="height: 200px"
-/>
-"""
-
-# ╔═╡ e9bd00e7-5829-4d89-944b-5f7ab7bb49bb
-@markdown """
-## Azobenzene
-
-Azobenzene is an azo compound which demonstrates a particular chemical reaction known as photoisomerization.
-"""
+# ╔═╡ dfc024aa-0eaf-485b-a9d8-f21ed27a66fb
+[Colors.XYZ(x, y, z) for (x, y, z) in Colors.cie1931_cmf_table]
 
 # ╔═╡ cab68da8-e982-4f20-aca4-3b08a0cbb430
 azobenzene_absorbance_spectrum = let
@@ -341,24 +141,6 @@ azobenzene_absorbance_spectrum = let
 	parse_jcampdx(download("http://webbook.nist.gov/cgi/cbook.cgi?JCAMP=$(jcampid)&Index=0&Type=UVVis"))
 end;
 
-# ╔═╡ 93d77fbf-53ed-4b25-8b93-f6e68c8a1a39
-dichromate_absorbance_spectrum = parse_jdx(
-	Downloads.download("http://wwwchem.uwimona.edu.jm/spectra/cr2o7.jdx")
-);
-
-# ╔═╡ 4c5d307c-5624-48de-8cb4-2fb738177515
-@markdown """
-<img
-	src="http://upload.wikimedia.org/wikipedia/commons/b/b6/Ammonium-dichromate-sample.jpg"
-	style="height: 200px"
-/>
-"""
-
-# ╔═╡ ef0f318a-c125-4a13-90fd-c3eb6e2b6b88
-@markdown """
-## Pentacene
-"""
-
 # ╔═╡ bfb0e02c-379b-4b54-87a6-2d509c7fa811
 pentacene_absorbance_spectrum = let
 	#Download UV-vis spectrum from NIST Chemistry Webbook
@@ -366,11 +148,6 @@ pentacene_absorbance_spectrum = let
 	
 	parse_jcampdx(download("http://webbook.nist.gov/cgi/cbook.cgi?JCAMP=$(jcampid)&Index=0&Type=UVVis"))
 end;
-
-# ╔═╡ 1e61d2af-b6a0-4d86-9382-7054ef646c42
-@markdown """
-## Rhodamine B
-"""
 
 # ╔═╡ 9bafc1fb-727c-4b09-bd8d-d0a9a02cc28b
 #Smooth out A with a simple moving average
@@ -384,131 +161,21 @@ function sma(A, n=8)
     B
 end
 
-# ╔═╡ 4fd9105e-aad7-4978-9bab-dbf57dac1def
-rhodamine_b_absorbence_spectrum = let
-	A = parse_photochemcad(
-		Downloads.download("http://omlc.ogi.edu/spectra/PhotochemCAD/data/009-abs.txt")
-	)
-	B = copy(A.ϵ)
-	B[A.λ .> 600] .= 0 #Zero out some noise
-	AbsorbanceSpectrum(A.λ, sma(B))
-end;
-
-# ╔═╡ 4046ea8e-f859-4bde-af07-da172eb86d53
-@markdown """
-<img
-	src="http://image.made-in-china.com/43f34j00kZOTfIJYhtqc/Solvent-Red-49-Rhodamine-B-Base-.jpg"
-	style="height: 200px"
-/>
-"""
-
-# ╔═╡ b4296e8f-49dd-40b9-bd79-26a8317b4803
-@markdown """
-## Iodine
-"""
-
-# ╔═╡ 6fb73758-b478-46cb-a196-13669a46b427
-iodine_absorbence_spectrum = let
-	#Data source:
-	#The MPI-Mainz UV/VIS Spectral Atlas
-	#of Gaseous Molecules of Atmospheric Interest
-	filename = Downloads.download("http://joseba.mpch-mainz.mpg.de/spectral_atlas_data/cross_sections/Halogens+mixed%20halogens/I2_Tellinghuisen(2011)_308K_390-900nm.txt")
-	S = DelimitedFiles.readdlm(filename, skipstart=2)
-	AbsorbanceSpectrum(S[:,1], S[:,2])
-end;
-
-# ╔═╡ 1e316df3-9717-4458-83cb-60e873b01620
-@markdown """
-Here is an image of sublimed elemental iodine, showing off its famous purple color.
-
-<img
-	src="http://farm9.staticflickr.com/8372/8457016550_9ee1584914_n.jpg"
-	style="height: 200px"
-/>
-
-(It's interesting to see how to perceived colors change as a function of concentration - it's common knowledge in photochemistry that perceptual colors may change in this way, and that looking for new structure in the spectrum is the only sure way to detect further chemical reactions which may cause colors to change even more drastically.)
-"""
-
-# ╔═╡ e32c92c2-7cf6-416c-a2b2-1e65a06159a1
-@markdown "## Appendix"
-
 # ╔═╡ 78051bb7-4caf-4898-b40e-efe52486380f
 macro math_str(str)
 	"``" * str * "``"
 end
 
-# ╔═╡ a7bf2ef5-0029-4dcb-b4a2-24d9a378d1fb
-@markdown """
-Raw light power and the XYZ color space
-The modern foundations of color theory can be traced back to the CIE 1931 color space model. Building upon centuries of empirical evidence that three coordinates are sufficient to quantify perceived colors, the CIE model defines three basis functions $(math"\overline{x}(\lambda)"), $(math"\overline{y}(\lambda)") and $(math"\overline{z}(\lambda)") over (most of) the visible wavelength range 380nm $(math"\le\lambda\le") 780 nm.
+# ╔═╡ d3229351-678b-4719-9ab3-6cf2982e178f
+macro code_str(code_expr)
+	quote
+		code = $(esc(code_expr))
+		code_str(code)
+	end
+end
 
-These basis functions define a linear vector space known as the XYZ color space. An arbitrary function $(math"f(\lambda)") has a three-dimensional projection as a vector in this vector space, with components known as tristimulus values that are given by the projections
-
-$(math"
-X = \int f(\lambda) \overline{x}(\lambda) d\lambda
-")
-
-$(math"
-Y = \int f(\lambda) \overline{y}(\lambda) d\lambda
-")
-
-$(math"
-Z = \int f(\lambda) \overline{z}(\lambda) d\lambda
-")
-
-The CIE standard defines the basis functions in discrete tabular form; the raw data for $(math"\overline{x}(\lambda)"), $(math"\overline{y}(\lambda)") and $(math"\overline{z}(\lambda)") are available in `Color.cie_color_match_table[:,i] for i=1:3` respectively.
-"""
-
-# ╔═╡ 20e44357-8ffa-43dd-bc4b-08b1fec32b6b
-@markdown """
-Ok, this looks like white. However, there's some built-in assumption on the normalization in Color.jl which I haven't figured out yet, which means that any XYZ(X,Y,Z) for sufficiently positive (X,Y,Z) will render as white.
-
-The easy solution to this is to convert to the xyY color space, where $(math"x") and $(math"y") are (normalized) chromaticity coordinates (such that $(math"x+y+z=1")) and $(math"Y") is the luminosity. Here's what the monochromatic rainbow looks like in this coordinate system:
-"""
-
-# ╔═╡ 0712f7ab-2eb3-4035-983c-401fb4c83fde
-@markdown """
-## Blackbody radiation
-
-Perhaps the easiest physically relevant power spectrum to look at is that of blackbody radiation, which is described by Planck's law:
-
-$(math"B_\lambda (T) = \frac{2hc^2}{\lambda^5} \frac{1}{\left(\exp\left(\frac{hc}{kT}\right) - 1\right)}")
-
-The function definition below makes use of the SIUnits.jl package for defining unitful physical quantities.
-"""
-
-# ╔═╡ 603cc295-833b-4f14-90f4-8a5b95fe3847
-@markdown """
-To check the computed color, we can compare our computed color against what is called the Planckian locus, which is the trajectory in the chromaticity space $(math"(x, y)"). There are known approximations using cubic splines as a function of the reciprocal temperature $(math"1/T").
-
-Color.jl also provides a colordiff function which quantifies the distance between two colors using the CIEDE2000 color-difference formula (pdf). (I'm not sure what the units are though.)
-"""
-
-# ╔═╡ 2ad1d25c-a3f1-4caf-b904-04dca9e50171
-@markdown """
-We can reconstruct the transmittance spectrum from the corresponding absorbance spectrum using the Beer-Lambert law:
-
-$(math"T = {10}^{-c l \epsilon} = e^{-\sigma l N}")
-
-where $(math"T") is the transmittance, $(math"\epsilon") is the (decadic) molar extinction coefficent, $(math"c") is the molar concentration of the sample, $(math"l") is the optical path length, the distance light travels in the sample, $(math"\sigma") is the optical cross-section, and $(math"N") is the number concentration of the sample.
-"""
-
-# ╔═╡ 4b287ba1-7b0f-46a4-8d9a-2a2c3641b4f4
-@markdown """
-However, this reconstruction requires information about the concentration and thickness of the sample, which is normalized out in most reported data. What we can do here is to explore how the perceived color depends on the concentration. Here I've chosen to vary the concentration factor $(math"cl=\sigma N") by sweeping over the maximal transmittance $(math"T_{max}") in the visible spectrum:
-
-$(math"cl = - \frac{log_{10}(T_{max})}{\epsilon}")
-
-and the computed color can be plotted in the $(math"xy") chromaticity plane as a function of the concentration factor.
-"""
-
-# ╔═╡ 5b786ac4-354e-483c-b349-4d3570f705b6
-@markdown """
-## Dichromate [Cr$(math"_2")O$(math"_7")]$(math"^{2-}")
-"""
-
-# ╔═╡ 0f6014fc-718d-4eda-b4cd-88f8e05dc900
-@markdown "### Units"
+# ╔═╡ 776a7f45-1745-4ae2-a964-957737c31243
+import Unitful: Unitful, @u_str
 
 # ╔═╡ 11504926-219a-4a29-b370-8c7344a78310
 m = u"m"
@@ -538,9 +205,6 @@ function planckian_locus(T::Unitful.Temperature)
     Colors.xyY(x, y, 1.0)
 end
 
-# ╔═╡ fd17ffd5-4e9c-476f-aa21-e7e05ba583cf
-locus = map(T -> planckian_locus(T*K), 1667:30:25000)
-
 # ╔═╡ faee8eb8-87f6-4d08-87fd-abdb00e5dc40
 W = u"W"
 
@@ -555,12 +219,11 @@ planck(λ; T=5778.0K) =
 # ╔═╡ a2345a6e-4142-4de2-b78a-16a8799f86e3
 nm = u"nm"
 
-# ╔═╡ d7e84b03-7616-4bcb-933d-4c3f275599b7
-Gadfly.plot([λ->planck(λ*nm,T=T)*(1e-9m)^3/W for T in Trange], 0, 2000,
-  Guide.xlabel("λ (nm)"),
-  Guide.ylabel("spectral radiance, B (W·sr⁻¹·nm⁻³)"),
-  color=[string(T) for T in Trange],
-)
+# ╔═╡ a622e3a6-826a-4900-a4d3-2b88733027bd
+X(λ) = sum(x̄.(380nm:λ))
+
+# ╔═╡ b307b0d5-6d80-4189-afa9-5371f14cdc33
+human_wavelength = 380nm:1nm:780nm
 
 # ╔═╡ 1497a357-5202-4b31-84d7-c93fd7c6aff3
 Base.convert(::Type{Colors.xyY}, T::Unitful.Temperature) = 
@@ -570,8 +233,473 @@ Base.convert(::Type{Colors.xyY}, T::Unitful.Temperature) =
 		) * Colors.cie_color_match(λ)
 	end) |> normalize0
 
+# ╔═╡ 2e6b97ea-2516-4562-a53d-89eac059c129
+#Convert XYZ to normalized xyY with white balancing
+function normalize(c::Colors.XYZ; docorrect::Bool=true)
+    d = convert(Colors.xyY, docorrect ?
+      Colors.whitebalance(c, Colors.WP_E, Colors.WP_DEFAULT) : c)
+    Colors.xyY(d.x, d.y, 1.0)
+end
+
+# ╔═╡ 8bd666ad-b434-47b7-954d-bbacab5dbd3f
+#Compute a series of transmission spectra scaled to a desired maximum transmission
+function calc_transmission(A::AbsorbanceSpectrum; maxTs=1.0:-0.0025:0.0)
+    colors = Colors.xyY[]
+    spectra = TransmissionSpectrum[]
+    for maxT in maxTs
+        scalefactor = -log10.(maxT) / minimum(A.ϵ[A.ϵ .> 0])
+		if scalefactor == Inf
+			continue
+		end
+		
+        T = convert(TransmissionSpectrum, A, cl=scalefactor)
+        push!(spectra, T)
+        push!(colors, convert(Colors.xyY, T))
+    end
+    colors, spectra
+end
+
+# ╔═╡ f7b5e83f-01ee-4430-9bcd-5440ac6b9e78
+"""
+Why is this a macro?? Well, I want to be able to style the output, without turning the result into some different (wrapped) object. Is there an easier way to do this? idk
+"""
+macro with_background(expr)
+	@gensym result
+	quote
+		$result = $(esc(expr))
+		with_background($result)
+	end
+end
+
+# ╔═╡ 30300f37-362a-4b00-b3e7-0423107c98a8
+import Gadfly: Gadfly, Geom, Theme, layer, Guide, Scale
+
+# ╔═╡ 001cb3c2-d912-4c8b-8836-7be8ad1013c2
+function Base.show(io::IO, mime::MIME"image/svg+xml", S::AbsorbanceSpectrum)
+    show(io, mime, Gadfly.plot(
+		Geom.line,
+		Guide.xlabel("λ (nm)"),
+		Guide.ylabel("Absorbance"),
+		x = S.λ,
+		y = S.ϵ,
+	))
+end
+
+# ╔═╡ 1ca29f42-705c-4420-a0d8-f00e05434416
+function Base.show(io::IO, mime::MIME"image/svg+xml", S::TransmissionSpectrum)
+    show(io, mime, Gadfly.plot(
+		Geom.line,
+		Guide.xlabel("λ (nm)"),
+		Guide.ylabel("Transmittance"),
+      	x = S.λ,
+		y = S.T
+	))
+end
+
+# ╔═╡ ab4957ed-1e17-4466-9e62-89c549cb37ea
+function Base.show(io::IO, mime::MIME"image/svg+xml", Ss::Vector{TransmissionSpectrum})
+    show(io, mime, Gadfly.plot(
+		Guide.xlabel("λ (nm)"),
+		Guide.ylabel("Transmittance"),
+    	[layer(Geom.line, x=S.λ, y=S.T) for S in Ss]...,
+	))
+end
+
+# ╔═╡ 35b969df-04df-4c2f-a395-59e024dc9d3b
+import MarkdownLiteral: @markdown
+
+# ╔═╡ 20e44357-8ffa-43dd-bc4b-08b1fec32b6b
+@markdown """
+Ok, this looks like white. However, there's some built-in assumption on the normalization in Color.jl which I haven't figured out yet, which means that any XYZ(X,Y,Z) for sufficiently positive (X,Y,Z) will render as white.
+
+The easy solution to this is to convert to the xyY color space, where $(math"x") and $(math"y") are (normalized) chromaticity coordinates (such that $(math"x+y+z=1")) and $(math"Y") is the luminosity. Here's what the monochromatic rainbow looks like in this coordinate system:
+"""
+
+# ╔═╡ b38d50a2-05a0-45e6-95ac-33effdde6a06
+@markdown """
+> 🙃 TODO  
+> I now have a Gadfly and "Plots" plot for this nice curvy rainbow... They both look different to what it used to in the original notebook.......... 🤷‍♀️
+"""
+
+# ╔═╡ 771cd920-c957-413e-9bf2-6c5badf3f431
+@markdown """
+It is easy to normalize the perceptual color in the xyY coordinate system.
+"""
+
+# ╔═╡ 06699d95-72b6-4645-8171-ddcf7a75dcf0
+@markdown """
+Oops, this isn't white. What's going on?
+
+Turns out that this is a white point issue. The definition I wanted turns out to be the E white point (`Color.WP_E`), whereas the CIE standard uses a different default white point (`Color.WP_DEFAULT`), which is the D65 white point (`Color.WP_D65`, the 'noon daylight' standard used by most displays). Conveniently, `Colors.jl` provides `Color.whitebalance` to correct for the difference in white points. So let's try this again.
+"""
+
+# ╔═╡ 1ad418c2-76fb-46d9-a20a-113b7593883e
+@markdown """
+Ok, this looks white now. We're ready to start visualizing some physical data!
+"""
+
+# ╔═╡ 0712f7ab-2eb3-4035-983c-401fb4c83fde
+@markdown """
+## Blackbody radiation
+
+Perhaps the easiest physically relevant power spectrum to look at is that of blackbody radiation, which is described by Planck's law:
+
+$(math"B_\lambda (T) = \frac{2hc^2}{\lambda^5} \frac{1}{\left(\exp\left(\frac{hc}{kT}\right) - 1\right)}")
+
+The cells below makes use of the Unitful.jl package for defining unitful physical quantities. Those units are explicitly defined at the [end of this notebook](#units).
+"""
+
+# ╔═╡ 7e6a4415-9526-47d0-b848-5f074d612b88
+@markdown """
+Let's look at the computed colors for blackbodies at various temperatures. The code below defines a new conversion function from temperature to an xyY color. (Note: For some reason, I got better results by disabling color correction in normalize. I'm not sure why.)
+"""
+
+# ╔═╡ 603cc295-833b-4f14-90f4-8a5b95fe3847
+@markdown """
+To check the computed color, we can compare our computed color against what is called the Planckian locus, which is the trajectory in the chromaticity space $(math"(x, y)"). There are known approximations using cubic splines as a function of the reciprocal temperature $(math"1/T").
+
+Color.jl also provides a colordiff function which quantifies the distance between two colors using the CIEDE2000 color-difference formula (pdf). (I'm not sure what the units are though.)
+"""
+
+# ╔═╡ 2ad1d25c-a3f1-4caf-b904-04dca9e50171
+@markdown """
+We can reconstruct the transmittance spectrum from the corresponding absorbance spectrum using the Beer-Lambert law:
+
+$(math"T = {10}^{-c l \epsilon} = e^{-\sigma l N}")
+
+where $(math"T") is the transmittance, $(math"\epsilon") is the (decadic) molar extinction coefficent, $(math"c") is the molar concentration of the sample, $(math"l") is the optical path length, the distance light travels in the sample, $(math"\sigma") is the optical cross-section, and $(math"N") is the number concentration of the sample.
+"""
+
+# ╔═╡ 9d13a79f-511d-4bdf-a83a-a7abfa7e18a0
+@markdown """
+The transmission spectrum is a function of light intensity over wavelength, and can therefore be projected directly into the XYZ color space as described in the previous section. (In the code snippet below, I've also included some heuristics to cover possible missing data in the transmission spectrum.)
+"""
+
+# ╔═╡ 4b287ba1-7b0f-46a4-8d9a-2a2c3641b4f4
+@markdown """
+However, this reconstruction requires information about the concentration and thickness of the sample, which is normalized out in most reported data. What we can do here is to explore how the perceived color depends on the concentration. Here I've chosen to vary the concentration factor $(math"cl=\sigma N") by sweeping over the maximal transmittance $(math"T_{max}") in the visible spectrum:
+
+$(math"cl = - \frac{log_{10}(T_{max})}{\epsilon}")
+
+and the computed color can be plotted in the $(math"xy") chromaticity plane as a function of the concentration factor.
+"""
+
+# ╔═╡ a238da5d-7bd0-45e3-8310-b16b2ba98eef
+@markdown """
+Finally, here are some short routines for parsing spectral data.
+"""
+
+# ╔═╡ 28aad279-0704-4330-b1db-387a9f346f6f
+@markdown """
+We are finally ready to start computing colors of molecules! The examples given below reflect (so to speak) a broad spectrum (ha) of molecular species, whose data are available online in several different formats.
+
+I've also included some images of the compounds in question to compare the computed color swatches with pictures of the actual solutions or samples. Again, the color swatches show the entire gamut of colors possible from the given spectra, so each a picture should match a color in the range. (There's also a question about the white balance in each reference picture, which is somewhat of a wildcard.)
+"""
+
+# ╔═╡ a75f5189-48ef-4b15-9755-56dbe3e7ab27
+@markdown """
+## Titanium (III) aqua ion
+"""
+
+# ╔═╡ 40170577-1a9b-4ed2-a42d-d8b49ad4a62e
+@markdown """
+Here is a picture of titanium (III) chloride solution from Wikipedia.
+
+<img
+	style="height:300px"
+	alt="Titanium (III) chloride solution from Wikipedia"
+	src="http://upload.wikimedia.org/wikipedia/commons/c/cd/TiCl3.jpg"
+/>
+"""
+
+# ╔═╡ 3362582f-cbaf-4286-b626-7378b1dff50d
+@markdown """
+## Copper (II) aqua ion
+"""
+
+# ╔═╡ 0b6ac8eb-9584-4dd5-b89d-f6fd19f18955
+@markdown """
+I found a particularly nice picture showing the diffusion of copper sulfate through an aqueous solution, showing a color gradient which corresponds very neatly with the gradient shown in the gamut!
+
+<img
+	alt="Copper sulfate diffusion"
+	src="http://www.nuffieldfoundation.org/sites/default/files/images/Diffusion%20of%20copper%20sulfate%20solution%20in%20water2_2262.jpg"
+	style="height: 200px"
+/>
+"""
+
+# ╔═╡ 81fe97b8-98bd-416e-b82c-2754c786cb35
+@markdown """
+## Copper(II) chlorophyllin
+
+This chlorophyll derivative is used as an edible dye (food additive E141) to give food the color of fresh leaves. So one would expect this to be a nice shade of green.
+"""
+
+# ╔═╡ 95010455-dd25-4075-87c3-b015c383c493
+@markdown """
+<img
+	alt="Chlorophyllin"
+	src="https://upload.wikimedia.org/wikipedia/commons/f/f1/M%C3%A9lisse_Feuilles_FR_2013b.jpg"
+	style="height: 200px"
+/>
+"""
+
+# ╔═╡ e9bd00e7-5829-4d89-944b-5f7ab7bb49bb
+@markdown """
+## Azobenzene
+
+Azobenzene is an azo compound which demonstrates a particular chemical reaction known as photoisomerization.
+"""
+
+# ╔═╡ 5b786ac4-354e-483c-b349-4d3570f705b6
+@markdown """
+## Dichromate [Cr$(math"_2")O$(math"_7")]$(math"^{2-}")
+"""
+
+# ╔═╡ 4c5d307c-5624-48de-8cb4-2fb738177515
+@markdown """
+<img
+	src="http://upload.wikimedia.org/wikipedia/commons/b/b6/Ammonium-dichromate-sample.jpg"
+	style="height: 200px"
+/>
+"""
+
+# ╔═╡ ef0f318a-c125-4a13-90fd-c3eb6e2b6b88
+@markdown """
+## Pentacene
+"""
+
+# ╔═╡ 1e61d2af-b6a0-4d86-9382-7054ef646c42
+@markdown """
+## Rhodamine B
+"""
+
+# ╔═╡ 4046ea8e-f859-4bde-af07-da172eb86d53
+@markdown """
+<img
+	src="http://image.made-in-china.com/43f34j00kZOTfIJYhtqc/Solvent-Red-49-Rhodamine-B-Base-.jpg"
+	style="height: 200px"
+/>
+"""
+
+# ╔═╡ b4296e8f-49dd-40b9-bd79-26a8317b4803
+@markdown """
+## Iodine
+"""
+
+# ╔═╡ 1e316df3-9717-4458-83cb-60e873b01620
+@markdown """
+Here is an image of sublimed elemental iodine, showing off its famous purple color.
+
+<img
+	src="http://farm9.staticflickr.com/8372/8457016550_9ee1584914_n.jpg"
+	style="height: 200px"
+/>
+
+(It's interesting to see how to perceived colors change as a function of concentration - it's common knowledge in photochemistry that perceptual colors may change in this way, and that looking for new structure in the spectrum is the only sure way to detect further chemical reactions which may cause colors to change even more drastically.)
+"""
+
+# ╔═╡ e32c92c2-7cf6-416c-a2b2-1e65a06159a1
+@markdown "## Appendix"
+
+# ╔═╡ 95e7c896-4d18-4bea-9f78-eb2d41c70b13
+@markdown """### Markdown helpers"""
+
+# ╔═╡ 0f6014fc-718d-4eda-b4cd-88f8e05dc900
+@markdown "### Units"
+
+# ╔═╡ 916bc0d1-c47b-4a31-b419-f110eefedda3
+@markdown """
+### with_background :D
+
+Wraps something display-able with a nice "this is transparent" thing so the colors and boundaries are easily visible.
+"""
+
+# ╔═╡ c4bdf555-cc99-47fa-be66-d3637e025377
+@markdown """### Imports"""
+
+# ╔═╡ 0e4f40e0-521f-421f-af23-671fe2ccc272
+import Plots
+
+# ╔═╡ 0d4cd2e9-eb66-4ab6-917e-ead6a09e8c54
+let
+	plot = Plots.plot(xaxis="λ (nm)", yaxis="Sensitivity", background="transparent")
+	Plots.plot!(plot, Colors.cie1931_cmf_table[:,1], color="#ff7500", label="x̄")
+	Plots.plot!(plot, Colors.cie1964_cmf_table[:,2], color="#60ff00", label="ȳ")
+	Plots.plot!(plot, Colors.cie1964_cmf_table[:,3], color="#7700ff", label="z̄")
+	plot
+end
+
+# ╔═╡ 9b8aca24-538d-4724-b041-feeca77a713e
+#Plot trajectory in chromaticity plane
+function plot_xy(C::AbstractVector{Colors.xyY})
+	# PlutoUI.as_svg(Gadfly.plot(
+	# 	x=[c.x for c in C],
+	#     y=[c.y for c in C],
+	# 	color=C,
+	#     # Gadfly.Scale.discrete_color_manual(C...),
+	#     Gadfly.Geom.point,
+	# 	Gadfly.Theme(key_position=:none),
+	# ))
+
+	Plots.scatter(
+		[c.x for c in C],
+		[c.y for c in C],
+		markercolor=C,
+		legend=false,
+		markerstrokewidth=0,
+		background="transparent",
+	)
+end
+
+# ╔═╡ bb50cddd-541c-4119-9fde-9062265866f1
+import PlutoUI
+
+# ╔═╡ d7e84b03-7616-4bcb-933d-4c3f275599b7
+PlutoUI.as_svg(Gadfly.plot([λ->planck(λ*nm,T=T)*(1e-9m)^3/W for T in Trange], 0, 2000,
+	Guide.xlabel("λ (nm)"),
+	Guide.ylabel("spectral radiance, B (W·sr⁻¹·nm⁻³)"),
+	color=[string(T) for T in Trange],
+))
+
+# ╔═╡ e9744d4a-4381-4a78-aa3a-d024c00fbb8f
+import PlutoUI.ExperimentalLayout: embed_display
+
+# ╔═╡ 8a773a45-4e90-4192-9482-eec0474b738f
+import Downloads
+
+# ╔═╡ 13495583-b9f5-4e0a-bcce-292da790daec
+titanium_III_aqua_ion_absorbance_spectrum = parse_jdx(
+	Downloads.download("http://wwwchem.uwimona.edu.jm/spectra/ti3aq.jdx")
+);
+
+# ╔═╡ 4dcf9519-6672-4cf6-99a4-8f11363b72b5
+copper_II_aqua_ion_absorbance_spectrum = parse_jdx(
+	Downloads.download("http://wwwchem.uwimona.edu.jm/spectra/cu2aq.jdx")
+);
+
+# ╔═╡ b97920d8-97a5-42c2-9c2a-9f2ee0969261
+copper_II_chlorophyllin_absorbance_spectrum = parse_jdx(
+	Downloads.download("http://wwwchem.uwimona.edu.jm/spectra/e141.jdx")
+);
+
+# ╔═╡ 93d77fbf-53ed-4b25-8b93-f6e68c8a1a39
+dichromate_absorbance_spectrum = parse_jdx(
+	Downloads.download("http://wwwchem.uwimona.edu.jm/spectra/cr2o7.jdx")
+);
+
+# ╔═╡ 4fd9105e-aad7-4978-9bab-dbf57dac1def
+rhodamine_b_absorbence_spectrum = let
+	A = parse_photochemcad(
+		Downloads.download("http://omlc.ogi.edu/spectra/PhotochemCAD/data/009-abs.txt")
+	)
+	B = copy(A.ϵ)
+	B[A.λ .> 600] .= 0 #Zero out some noise
+	AbsorbanceSpectrum(A.λ, sma(B))
+end;
+
+# ╔═╡ 6fb73758-b478-46cb-a196-13669a46b427
+iodine_absorbence_spectrum = let
+	#Data source:
+	#The MPI-Mainz UV/VIS Spectral Atlas
+	#of Gaseous Molecules of Atmospheric Interest
+	filename = Downloads.download("http://joseba.mpch-mainz.mpg.de/spectral_atlas_data/cross_sections/Halogens+mixed%20halogens/I2_Tellinghuisen(2011)_308K_390-900nm.txt")
+	S = DelimitedFiles.readdlm(filename, skipstart=2)
+	AbsorbanceSpectrum(S[:,1], S[:,2])
+end;
+
+# ╔═╡ cac91ac1-ecf0-49b3-a5e1-972a7c3e786f
+import HypertextLiteral: @htl
+
+# ╔═╡ 5fdc6999-816c-4d51-b989-14e8c442cd96
+code_str(code) = @htl """
+	<code class="language-julia">$(code)</code>
+"""
+
+# ╔═╡ 79a54b9b-8fe0-4f5e-a983-c54d0696a125
+md"""
+## Color vision and the visible spectrum
+
+Physically speaking, light is radiation in the form of electromagnetic waves, and can therefore be quantified by certain characteristics such as wavelength and amplitude. Color theory studies how such characteristics get translated into a sensory perception, of color.
+
+The human eye supports two types of vision: photoptic vision occurs under bright light, and scotopic vision occurs under dim light. These two modes come from using different types of vision cells, namely cones and rods respectively. Only cones sense color, and are sensitive to light with wavelengths in the range of 350-800 nm. The actual range can vary from person to person.
+
+Color theory focuses mainly on photoptic vision in the 380-780 nm region. Computations for color theory are provided by functions in the Julia package Colors.jl. For example, $(code"Colors.cie_color_match") calculates the perceived color produced by monochromatic light, i.e. light waves of a single, pure wavelength.
+"""
+
+# ╔═╡ a7bf2ef5-0029-4dcb-b4a2-24d9a378d1fb
+@markdown """
+Raw light power and the XYZ color space
+The modern foundations of color theory can be traced back to the CIE 1931 color space model. Building upon centuries of empirical evidence that three coordinates are sufficient to quantify perceived colors, the CIE model defines three basis functions $(math"\overline{x}(\lambda)"), $(math"\overline{y}(\lambda)") and $(math"\overline{z}(\lambda)") over (most of) the visible wavelength range 380nm $(math"\le\lambda\le") 780 nm.
+
+These basis functions define a linear vector space known as the XYZ color space. An arbitrary function $(math"f(\lambda)") has a three-dimensional projection as a vector in this vector space, with components known as tristimulus values that are given by the projections
+
+$(math"
+X = \int f(\lambda) \overline{x}(\lambda) d\lambda
+")
+
+$(math"
+Y = \int f(\lambda) \overline{y}(\lambda) d\lambda
+")
+
+$(math"
+Z = \int f(\lambda) \overline{z}(\lambda) d\lambda
+")
+
+The CIE standard defines the basis functions in discrete tabular form; the raw data for $(math"\overline{x}(\lambda)"), $(math"\overline{y}(\lambda)") and $(math"\overline{z}(\lambda)") are available in $(code"Color.cie_color_match_table[:,i] for i=1:3") respectively.
+"""
+
+# ╔═╡ aecc5d71-1e4c-42f2-994d-78d5c4cd8f43
+function with_background(obj)
+	@htl """
+	<fancy-background style="white-space: normal">
+		<template shadowroot="open">
+			<style>
+			.background {
+				--block-color: lightgray;
+				--block-size: 15px;
+			
+				background-color: black;
+				padding: 12px;
+				display: inline-block;
+				background-color: white;
+				background-image:
+					linear-gradient(45deg, var(--block-color) 25%, transparent 25%, transparent 75%, var(--block-color) 75%, var(--block-color)),
+					linear-gradient(45deg, var(--block-color) 25%, transparent 25%, transparent 75%, var(--block-color) 75%, var(--block-color));
+				background-size: var(--block-size) var(--block-size);
+				background-position:
+					0 0,
+					calc(var(--block-size) / 2) calc(var(--block-size) / 2);
+			}
+
+			@media (prefers-color-scheme: dark) {
+				.background {
+					background-color: black;
+					--block-color: #444;
+				}
+			}
+			</style>
+	
+			<div class="background">
+				<slot class="hmm" />
+			</div>
+		</template>
+
+		<div slot>
+			$(embed_display(obj))
+		</div>
+	</fancy-background>
+	"""
+end
+
+# ╔═╡ 38706b8d-1eb9-41a0-9de8-90f94ef62fa6
+@with_background rainbow = [Colors.cie_color_match(λ) for λ=380:1.5:780]
+
+# ╔═╡ 597b79c6-59d4-436f-a2ac-2ffa94db840c
+@with_background sum(map(Colors.cie_color_match, 380:780))
+
 # ╔═╡ ff45fce9-97dc-4693-807e-13f0e810bcd1
-rainbowxyY = map(380:780) do λ
+@with_background rainbowxyY = map(380:780) do λ
 	convert(Colors.xyY, Colors.cie_color_match(λ))
 end
 
@@ -596,33 +724,38 @@ Plots.scatter(
 	background="transparent",
 )
 
-# ╔═╡ 2e6b97ea-2516-4562-a53d-89eac059c129
-#Convert XYZ to normalized xyY with white balancing
-function normalize(c::Colors.XYZ; docorrect::Bool=true)
-    d = convert(Colors.xyY, docorrect ?
-      Colors.whitebalance(c, Colors.WP_E, Colors.WP_DEFAULT) : c)
-    Colors.xyY(d.x, d.y, 1.0)
-end
+# ╔═╡ f5d75003-d62c-4524-8763-d5358abae28d
+#Convolution with flat power spectrum
+(
+	our_sum = @with_background(
+		sum(map(Colors.cie_color_match, 380:780)) |> normalize0
+	),
+	actual_white = @with_background(Colors.color("white")),
+)
 
 # ╔═╡ 9c7d1ef8-b032-4410-9560-e317b66956fe
 #Convolution with flat power spectrum
-[
-	sum(map(Colors.cie_color_match, 380:780)) |> normalize,
-	Colors.RGB(255f8, 255f8, 255f8),
-]
+(
+	our_sum = @with_background(
+		sum(map(Colors.cie_color_match, 380:780)) |> normalize
+	),
+	actual_white = @with_background(Colors.color("white"))
+)
 
 # ╔═╡ 9dc8f185-df7c-4a93-8be1-535fb90e03fa
-blackbodies = Colors.xyY[convert(Colors.xyY, T) for T in 30K:30K:10000K]
+@with_background blackbodies = Colors.xyY[T for T in 30K:30K:10000K]
 
 # ╔═╡ 47880678-53ee-483a-9b67-7e37d7d155ba
-convert(Colors.xyY, T☉)
+@with_background convert(Colors.xyY, T☉)
 
-# ╔═╡ 94b2e8ff-edde-4fcb-9eed-192901422122
-begin
-	sun_approx = planckian_locus(T☉)
-	sun = convert(Colors.xyY, T☉)
-	[sun_approx, sun]
-end
+# ╔═╡ a84a82ca-2f54-4d98-8718-8f3b39527bda
+@with_background sun_approx = planckian_locus(T☉)
+
+# ╔═╡ 0f3d56b0-6087-4e52-93bc-1561b7f8515c
+@with_background sun = convert(Colors.xyY, T☉)
+
+# ╔═╡ fd17ffd5-4e9c-476f-aa21-e7e05ba583cf
+@with_background locus = map(T -> planckian_locus(T*K), 1667:30:25000)
 
 # ╔═╡ b88c043c-8ddf-45b8-b0a8-f75d037b075c
 #XXX plotting issue https://github.com/dcjones/Gadfly.jl/issues/317
@@ -638,30 +771,12 @@ PlutoUI.as_svg(Gadfly.plot(
 	layer(Geom.label, x=[sun_approx.x], y=[sun_approx.y], label=["☉ (approx)"]),
 ))
 
-# ╔═╡ 8bd666ad-b434-47b7-954d-bbacab5dbd3f
-#Compute a series of transmission spectra scaled to a desired maximum transmission
-function calc_transmission(A::AbsorbanceSpectrum; maxTs=1.0:-0.0025:0.0)
-    colors = Colors.xyY[]
-    spectra = TransmissionSpectrum[]
-    for maxT in maxTs
-        scalefactor = -log10.(maxT) / minimum(A.ϵ[A.ϵ.>0])
-		if scalefactor == Inf
-			continue
-		end
-		
-        T = convert(TransmissionSpectrum, A, cl=scalefactor)
-        push!(spectra, T)
-        push!(colors, convert(Colors.xyY, T))
-    end
-    colors, spectra
-end
-
 # ╔═╡ f7288dab-c8f1-4a6f-980d-fd4e678faf14
 function showcolors(A::AbsorbanceSpectrum)
     colors, Ts = calc_transmission(A)
     PlutoUI.ExperimentalLayout.grid([
 		embed_display(A)                 embed_display(Ts[1:20:end])
-		embed_display(plot_xy(colors))   embed_display(Vector{Colors.XYZ{Float32}}(colors))
+		embed_display(plot_xy(colors))   @with_background(embed_display((colors)))
 	])
 end
 
@@ -695,8 +810,10 @@ PLUTO_PROJECT_TOML_CONTENTS = """
 CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
 Colors = "5ae59095-9a9b-59fe-a467-6f913c188581"
 DelimitedFiles = "8bb1440f-4735-579b-a4ab-409b98df4dab"
+Distributed = "8ba89e20-285c-5b6f-9357-94700520ee1b"
 Downloads = "f43a241f-c20a-4ad4-852c-f6b1247861c6"
 Gadfly = "c91e804a-d5a3-530f-b6f0-dfbca275c004"
+HypertextLiteral = "ac1192a8-f4b3-4bfe-ba22-af5b92cd3ab2"
 MarkdownLiteral = "736d6165-7244-6769-4267-6b50796e6954"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
@@ -706,6 +823,7 @@ Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 CSV = "~0.10.1"
 Colors = "~0.12.8"
 Gadfly = "~1.3.4"
+HypertextLiteral = "~0.9.3"
 MarkdownLiteral = "~0.1.1"
 Plots = "~1.25.6"
 PlutoUI = "~0.7.30"
@@ -1886,26 +2004,24 @@ version = "0.9.1+5"
 # ╔═╡ Cell order:
 # ╟─0c3b0218-2125-447c-802d-405ffc214507
 # ╠═95461946-7890-11ec-2f39-95d40be17995
-# ╠═30300f37-362a-4b00-b3e7-0423107c98a8
-# ╠═776a7f45-1745-4ae2-a964-957737c31243
-# ╠═35b969df-04df-4c2f-a395-59e024dc9d3b
-# ╠═0e4f40e0-521f-421f-af23-671fe2ccc272
-# ╠═bb50cddd-541c-4119-9fde-9062265866f1
-# ╠═8a773a45-4e90-4192-9482-eec0474b738f
 # ╟─79a54b9b-8fe0-4f5e-a983-c54d0696a125
 # ╠═38706b8d-1eb9-41a0-9de8-90f94ef62fa6
 # ╟─a7bf2ef5-0029-4dcb-b4a2-24d9a378d1fb
-# ╟─0d4cd2e9-eb66-4ab6-917e-ead6a09e8c54
+# ╠═4fbc02ee-6018-4955-a0dc-6f86c2622f6a
+# ╠═a622e3a6-826a-4900-a4d3-2b88733027bd
+# ╠═b307b0d5-6d80-4189-afa9-5371f14cdc33
+# ╠═0d4cd2e9-eb66-4ab6-917e-ead6a09e8c54
 # ╟─aa5e68d7-e31f-42f8-b431-48fed2901eb9
 # ╠═597b79c6-59d4-436f-a2ac-2ffa94db840c
 # ╟─20e44357-8ffa-43dd-bc4b-08b1fec32b6b
 # ╠═ff45fce9-97dc-4693-807e-13f0e810bcd1
+# ╟─b38d50a2-05a0-45e6-95ac-33effdde6a06
 # ╠═e0242ad5-5614-45cb-a506-380eb2826c79
 # ╠═3d8a0de5-fd41-4e36-aafb-9c686309bbb2
 # ╟─771cd920-c957-413e-9bf2-6c5badf3f431
 # ╠═cbca53c4-556e-4d6a-97da-a68fb41ffa6f
 # ╠═f5d75003-d62c-4524-8763-d5358abae28d
-# ╠═06699d95-72b6-4645-8171-ddcf7a75dcf0
+# ╟─06699d95-72b6-4645-8171-ddcf7a75dcf0
 # ╠═2e6b97ea-2516-4562-a53d-89eac059c129
 # ╠═9c7d1ef8-b032-4410-9560-e317b66956fe
 # ╟─1ad418c2-76fb-46d9-a20a-113b7593883e
@@ -1918,11 +2034,14 @@ version = "0.9.1+5"
 # ╟─7e6a4415-9526-47d0-b848-5f074d612b88
 # ╠═1497a357-5202-4b31-84d7-c93fd7c6aff3
 # ╠═9dc8f185-df7c-4a93-8be1-535fb90e03fa
+# ╠═53ee62eb-951b-4f74-bcb9-2f0f67b7e92a
+# ╠═1950d14c-0c6c-49e1-acca-8dbe0b2e975c
 # ╠═4ac4f213-48cd-48f3-8ef2-900c9c6411a7
 # ╠═47880678-53ee-483a-9b67-7e37d7d155ba
 # ╟─603cc295-833b-4f14-90f4-8a5b95fe3847
 # ╠═47a3ceca-3f04-4b79-807c-05a93a78dbb1
-# ╠═94b2e8ff-edde-4fcb-9eed-192901422122
+# ╠═a84a82ca-2f54-4d98-8718-8f3b39527bda
+# ╠═0f3d56b0-6087-4e52-93bc-1561b7f8515c
 # ╟─5fda05d3-dd29-46be-855d-2781397d0354
 # ╠═fd17ffd5-4e9c-476f-aa21-e7e05ba583cf
 # ╠═b88c043c-8ddf-45b8-b0a8-f75d037b075c
@@ -1939,8 +2058,8 @@ version = "0.9.1+5"
 # ╠═5266d1f1-43bc-4882-baeb-b6159d3854b9
 # ╠═2c747ea7-e5cd-43ae-8167-9dd78fd26724
 # ╟─4b287ba1-7b0f-46a4-8d9a-2a2c3641b4f4
-# ╟─8bd666ad-b434-47b7-954d-bbacab5dbd3f
-# ╟─9b8aca24-538d-4724-b041-feeca77a713e
+# ╠═8bd666ad-b434-47b7-954d-bbacab5dbd3f
+# ╠═9b8aca24-538d-4724-b041-feeca77a713e
 # ╟─a238da5d-7bd0-45e3-8310-b16b2ba98eef
 # ╟─cbb08799-2967-4860-b9eb-e2232323a4b5
 # ╟─4a8f061a-e202-41cf-ab5f-0b8020aa07d1
@@ -1948,11 +2067,11 @@ version = "0.9.1+5"
 # ╠═af54005b-4ca5-4a38-b6d3-43ac546d6567
 # ╠═7e2287c0-5dc2-426d-8277-861154b37d13
 # ╟─28aad279-0704-4330-b1db-387a9f346f6f
-# ╟─f7288dab-c8f1-4a6f-980d-fd4e678faf14
+# ╠═f7288dab-c8f1-4a6f-980d-fd4e678faf14
 # ╟─a75f5189-48ef-4b15-9755-56dbe3e7ab27
 # ╠═13495583-b9f5-4e0a-bcce-292da790daec
 # ╟─c4ffd07b-60f7-4bae-ab61-a024fb7e2f8b
-# ╟─40170577-1a9b-4ed2-a42d-d8b49ad4a62e
+# ╠═40170577-1a9b-4ed2-a42d-d8b49ad4a62e
 # ╟─3362582f-cbaf-4286-b626-7378b1dff50d
 # ╠═4dcf9519-6672-4cf6-99a4-8f11363b72b5
 # ╟─043ca402-e234-4074-a458-e77a54e65932
@@ -1960,6 +2079,7 @@ version = "0.9.1+5"
 # ╟─81fe97b8-98bd-416e-b82c-2754c786cb35
 # ╠═b97920d8-97a5-42c2-9c2a-9f2ee0969261
 # ╟─ba81901a-ed49-446b-be2e-00edcee3ad15
+# ╠═dfc024aa-0eaf-485b-a9d8-f21ed27a66fb
 # ╟─95010455-dd25-4075-87c3-b015c383c493
 # ╟─e9bd00e7-5829-4d89-944b-5f7ab7bb49bb
 # ╠═cab68da8-e982-4f20-aca4-3b08a0cbb430
@@ -1981,11 +2101,26 @@ version = "0.9.1+5"
 # ╟─5f6b0eb5-40fa-4838-b832-bb3185c8b6da
 # ╟─1e316df3-9717-4458-83cb-60e873b01620
 # ╟─e32c92c2-7cf6-416c-a2b2-1e65a06159a1
-# ╠═78051bb7-4caf-4898-b40e-efe52486380f
+# ╟─95e7c896-4d18-4bea-9f78-eb2d41c70b13
+# ╟─78051bb7-4caf-4898-b40e-efe52486380f
+# ╟─d3229351-678b-4719-9ab3-6cf2982e178f
+# ╟─5fdc6999-816c-4d51-b989-14e8c442cd96
 # ╟─0f6014fc-718d-4eda-b4cd-88f8e05dc900
+# ╠═776a7f45-1745-4ae2-a964-957737c31243
 # ╟─11504926-219a-4a29-b370-8c7344a78310
 # ╟─058294ff-40c1-4992-b5cd-4b5d9062d7c6
 # ╟─faee8eb8-87f6-4d08-87fd-abdb00e5dc40
 # ╟─a2345a6e-4142-4de2-b78a-16a8799f86e3
+# ╟─916bc0d1-c47b-4a31-b419-f110eefedda3
+# ╟─aecc5d71-1e4c-42f2-994d-78d5c4cd8f43
+# ╟─f7b5e83f-01ee-4430-9bcd-5440ac6b9e78
+# ╟─c4bdf555-cc99-47fa-be66-d3637e025377
+# ╠═30300f37-362a-4b00-b3e7-0423107c98a8
+# ╠═35b969df-04df-4c2f-a395-59e024dc9d3b
+# ╠═0e4f40e0-521f-421f-af23-671fe2ccc272
+# ╠═bb50cddd-541c-4119-9fde-9062265866f1
+# ╠═e9744d4a-4381-4a78-aa3a-d024c00fbb8f
+# ╠═8a773a45-4e90-4192-9482-eec0474b738f
+# ╠═cac91ac1-ecf0-49b3-a5e1-972a7c3e786f
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
