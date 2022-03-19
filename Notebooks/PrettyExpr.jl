@@ -1,11 +1,24 @@
 ### A Pluto.jl notebook ###
-# v0.17.1
+# v0.17.5
 
 using Markdown
 using InteractiveUtils
 
+# ╔═╡ 093c631c-3c18-450e-a579-9db91cf2ded7
+using MarkdownLiteral
+
 # ╔═╡ 19f83c25-828c-4cf3-9086-9088e51f07f9
 import HypertextLiteral: @htl
+
+# ╔═╡ 3fa427e4-5158-4326-b9a4-a4022d174072
+import MarkdownLiteral: @markdown
+
+# ╔═╡ f7bd6a1b-7f4a-469c-9b1e-5e5e467a2694
+md"""
+# PrettyExpr
+
+Prety printing of beautiful expressions
+"""
 
 # ╔═╡ fc30418d-ed9a-4287-be30-ed1fa4ec3fc7
 begin
@@ -18,6 +31,9 @@ end
 
 # ╔═╡ 44b6c357-cabf-491b-8e11-a9bcbf565d36
 export PrettyExpr
+
+# ╔═╡ 9a0d4eda-584a-41f6-8603-508ba02e0315
+PrettyExpr(:(1 + 1))
 
 # ╔═╡ 7ec768ab-ed40-4983-a044-3f9da1637be1
 struct NiceFormattedInterpolation
@@ -179,24 +195,78 @@ end
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
 HypertextLiteral = "ac1192a8-f4b3-4bfe-ba22-af5b92cd3ab2"
+MarkdownLiteral = "736d6165-7244-6769-4267-6b50796e6954"
 
 [compat]
 HypertextLiteral = "~0.9.3"
+MarkdownLiteral = "~0.1.1"
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000002
 PLUTO_MANIFEST_TOML_CONTENTS = """
 # This file is machine-generated - editing it directly is not advised
 
+[[CommonMark]]
+deps = ["Crayons", "JSON", "URIs"]
+git-tree-sha1 = "4aff51293dbdbd268df314827b7f409ea57f5b70"
+uuid = "a80b9123-70ca-4bc0-993e-6e3bcb318db6"
+version = "0.8.5"
+
+[[Crayons]]
+git-tree-sha1 = "b618084b49e78985ffa8422f32b9838e397b9fc2"
+uuid = "a8cc5b0e-0ffa-5ad4-8c14-923d3ee1735f"
+version = "4.1.0"
+
+[[Dates]]
+deps = ["Printf"]
+uuid = "ade2ca70-3891-5945-98fb-dc099432e06a"
+
 [[HypertextLiteral]]
 git-tree-sha1 = "2b078b5a615c6c0396c77810d92ee8c6f470d238"
 uuid = "ac1192a8-f4b3-4bfe-ba22-af5b92cd3ab2"
 version = "0.9.3"
+
+[[JSON]]
+deps = ["Dates", "Mmap", "Parsers", "Unicode"]
+git-tree-sha1 = "8076680b162ada2a031f707ac7b4953e30667a37"
+uuid = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
+version = "0.21.2"
+
+[[MarkdownLiteral]]
+deps = ["CommonMark", "HypertextLiteral"]
+git-tree-sha1 = "0d3fa2dd374934b62ee16a4721fe68c418b92899"
+uuid = "736d6165-7244-6769-4267-6b50796e6954"
+version = "0.1.1"
+
+[[Mmap]]
+uuid = "a63ad114-7e13-5084-954f-fe012c677804"
+
+[[Parsers]]
+deps = ["Dates"]
+git-tree-sha1 = "92f91ba9e5941fc781fecf5494ac1da87bdac775"
+uuid = "69de0a69-1ddd-5017-9359-2bf0b02dc9f0"
+version = "2.2.0"
+
+[[Printf]]
+deps = ["Unicode"]
+uuid = "de0858da-6303-5e67-8744-51eddeeeb8d7"
+
+[[URIs]]
+git-tree-sha1 = "97bbe755a53fe859669cd907f2d96aee8d2c1355"
+uuid = "5c2747f8-b7ea-4ff2-ba2e-563bfd36b1d4"
+version = "1.3.0"
+
+[[Unicode]]
+uuid = "4ec0a83e-493e-50e2-b9ac-8f72acf5a8f5"
 """
 
 # ╔═╡ Cell order:
 # ╠═19f83c25-828c-4cf3-9086-9088e51f07f9
 # ╠═44b6c357-cabf-491b-8e11-a9bcbf565d36
+# ╠═093c631c-3c18-450e-a579-9db91cf2ded7
+# ╠═3fa427e4-5158-4326-b9a4-a4022d174072
+# ╟─f7bd6a1b-7f4a-469c-9b1e-5e5e467a2694
+# ╠═9a0d4eda-584a-41f6-8603-508ba02e0315
 # ╠═fc30418d-ed9a-4287-be30-ed1fa4ec3fc7
 # ╠═0f1411ef-e69d-400e-b649-6b5d956387a6
 # ╠═7ec768ab-ed40-4983-a044-3f9da1637be1

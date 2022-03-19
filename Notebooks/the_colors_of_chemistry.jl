@@ -22,12 +22,6 @@ cie1931_380_to_780 = Colors.cie1931_cmf_table[begin+(380-360):begin+(380-360)+40
 # ╔═╡ 36107461-eadc-4d2a-9081-faaa8f80f784
 Colors.cie_color_match(480)
 
-# ╔═╡ 53ee62eb-951b-4f74-bcb9-2f0f67b7e92a
-import Distributed
-
-# ╔═╡ 1950d14c-0c6c-49e1-acca-8dbe0b2e975c
-Distributed.myid()
-
 # ╔═╡ 5fda05d3-dd29-46be-855d-2781397d0354
 md"""
 As a final check, overlay the approximate Planckian locus with the computed one from the blackbody spectrum. Close enough, maybe?
@@ -748,7 +742,6 @@ PlutoUI.as_svg(Gadfly.plot(
 	Scale.discrete_color_manual(rainbow...),
 ))
 
-
 # ╔═╡ 3d8a0de5-fd41-4e36-aafb-9c686309bbb2
 Plots.scatter(
 	[c.x for c in rainbowxyY],
@@ -845,7 +838,6 @@ PLUTO_PROJECT_TOML_CONTENTS = """
 CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
 Colors = "5ae59095-9a9b-59fe-a467-6f913c188581"
 DelimitedFiles = "8bb1440f-4735-579b-a4ab-409b98df4dab"
-Distributed = "8ba89e20-285c-5b6f-9357-94700520ee1b"
 Downloads = "f43a241f-c20a-4ad4-852c-f6b1247861c6"
 Gadfly = "c91e804a-d5a3-530f-b6f0-dfbca275c004"
 HypertextLiteral = "ac1192a8-f4b3-4bfe-ba22-af5b92cd3ab2"
@@ -2077,8 +2069,6 @@ version = "0.9.1+5"
 # ╟─7e6a4415-9526-47d0-b848-5f074d612b88
 # ╠═1497a357-5202-4b31-84d7-c93fd7c6aff3
 # ╠═9dc8f185-df7c-4a93-8be1-535fb90e03fa
-# ╠═53ee62eb-951b-4f74-bcb9-2f0f67b7e92a
-# ╠═1950d14c-0c6c-49e1-acca-8dbe0b2e975c
 # ╠═4ac4f213-48cd-48f3-8ef2-900c9c6411a7
 # ╠═47880678-53ee-483a-9b67-7e37d7d155ba
 # ╟─603cc295-833b-4f14-90f4-8a5b95fe3847
